@@ -1,0 +1,9 @@
+# The ant will travel along this edge.
+uint8 from_node
+uint8 to_node
+---
+# The ant took this long to travel.
+uint8 total_time
+---
+# The time traveling along this edge.
+uint8 travel_time
