@@ -1,7 +1,0 @@
-# The ant starts at this node.
-uint8 start_node
----
-# The ant will travel to this node.
-uint8 next_node
-# The ant will take this long.
-uint8 travel_time
