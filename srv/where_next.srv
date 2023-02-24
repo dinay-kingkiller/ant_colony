@@ -1,0 +1,7 @@
+# The ant starts here.
+uint8 start_vertex
+---
+# The ant will travel here.
+uint8 next_vertex
+# The ant will take this long.
+uint8 travel_time
