@@ -1,0 +1,4 @@
+uint8 start_vertex
+---
+uint8 next_vertex
+uint8 edge_weight
