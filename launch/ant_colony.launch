@@ -1,0 +1,9 @@
+<launch>
+  <node
+      pkg="ant_colony"
+      type="map"
+      name="pheromone_map"
+      required="true"
+      />
+</launch>
+  
