@@ -112,7 +112,7 @@ int main(int argc, char **argv) {
 
   GenerateMap();
 
-  ros::Subscriber pheromone_drops = nh.subscribe("pheromone_drops", 1000, AddPheromones);
+  ros::Subscriber pheromone_drops = nh.subscribe("pheromone_deposits", 1000, AddPheromones);
   ros::ServiceServer where_next_server = nh.advertiseService("where_next", ChoosePath);
   
   while (ros::ok()) {

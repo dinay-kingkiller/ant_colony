@@ -38,7 +38,7 @@ int main(int argc, char **argv) {
       // The ant wants to know where to go next.
       where_next_srv.request.start_vertex = current_vertex;
       if (not lost_ant.call(where_next_srv)) {
-	ROS_ERROR(name + " could not talk to where_next service.");
+	// ROS_ERROR(name + " could not talk to where_next service.");
 	return 1;
       }
       travel_time = where_next_srv.response.edge_weight;
@@ -63,6 +63,7 @@ int main(int argc, char **argv) {
       pheromone_msg.from_vertex = current_vertex;
       pheromone_msg.to_vertex = next_vertex;
       pheromone_msg.deposit = RewardPower / tour_length;
+      reporter.publish(pheromone_msg);
       if (current_vertex == start_vertex) {
 	exploring = true;
 	tour.clear();
