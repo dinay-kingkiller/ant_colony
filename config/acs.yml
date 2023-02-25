@@ -1,0 +1,19 @@
+# Ant parameters
+ANT_COUNT: 20
+
+# Map parameters
+VERTEX_COUNT: 256 # uint8_t max 256
+EDGE_COUNT: 512 # Max: (V*(V-1)/2); Min: V-1
+MAX_EDGE_LENGTH: 16
+
+# How much will ants avoid long paths? (>=1, default 1):
+DISTANCE_POWER: 1.
+# How long will pheromones stay on the trails? (1>= and >=0, default=0)
+EVAPORATION_POWER: 0.
+# How much will ants trust known paths? (>=0, default=0)
+PHEROMONE_POWER: 0.
+# How much pheromone is dropped on reaching a goal? (default: 1):
+REWARD_POWER: 1.
+
+# rosmsg buffer
+BUFFER_SIZE: 100000
