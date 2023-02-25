@@ -55,13 +55,37 @@ void GenerateMap() {
   }
 }
 
-void AddPheromone(const ant_colony::pheromone::ConstPtr& msg) {
-  msg.frome_node;
-  msg.to_node;
-  msg.deposit;
+void AddPheromones(const ant_colony::pheromone::ConstPtr& msg) {
+  pheromones[msg.from_node][msg.to_node] += msg.deposit;
+  pheromones[msg.to_node][msg.from_node] += msg.deposit;
 }
 
-void ChoosePath
+void UpdatePheromones() {
+  for (int i = 0; i < VERTEX_COUNT; ++i) {
+    for (int j = i; j < VERTEX_COUNT; ++j) {
+      pheromones[i][j] = (1-EVAPORATION_POWER) * pheromones[i][j];
+    }
+  }
+}
+
+bool ChoosePath(ant_colony::where_next::Request &req,
+		 ant_colony::where_next::Response &res) {
+  int sum=0;
+  for (int i = 0; i < VERTEX_COUNT, ++i) {
+    sum += pheromones[req.start_vertex][i] * desirability[req.start_vertex][i];
+  }
+  choice = rand() * sum;
+  sum = 0;
+  for (int i = 0; i < VERTEX_COUNT, ++i) {
+    sum += pheromones[req.start_vertex][i] * desirability[req.start_vertex][i];
+    if (choice < sum) {
+      res.next_vertex = i;
+      res.travel_time = distance[req.start_vertex][i];
+      return true;
+    }
+  }
+  return false;
+}
 
 int main(int argc, char **argv) {
   // Generate map.
@@ -69,5 +93,11 @@ int main(int argc, char **argv) {
   ros::init(argc, argv, "map");
   ros::NodeHandle nh;
   ros::Subscriber pheromone_updates = nh.subscribe("pheromone_drops", BUFFER_SIZE, AddPheromone);
-
+  ros::ServiceServer nh.advertiseService("where_next", ChoosePath);
+  ros::Rate loop_rate(1);
+  
+  while (ros::ok()) {
+    UpdatePheromones();
+    loop_rate.sleep();
+  }
 }

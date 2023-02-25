@@ -2,9 +2,9 @@
 ANT_COUNT: 20
 
 # Map parameters
-VERTEX_COUNT: 256 # uint8_t max 256
+VERTEX_COUNT: 16 # uint8_t
 EDGE_COUNT: 512 # Max: (V*(V-1)/2); Min: V-1
-MAX_EDGE_LENGTH: 16
+MAX_EDGE_LENGTH: 8 # uint8_t
 
 # How much will ants avoid long paths? (>=1, default 1):
 DISTANCE_POWER: 1.
