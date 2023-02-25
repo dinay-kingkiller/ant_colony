@@ -1,8 +1,3 @@
-// TODO MOVE TO CONFIG
-#define BUFFER_SIZE 100000
-#define VERTEX_COUNT 256
-#define REWARD_POWER 1
-
 #include <string>
 #include <vector>
 

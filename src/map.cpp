@@ -1,12 +1,3 @@
-#define VERTEX_COUNT 256 // uint8_t max 256
-#define EDGE_COUNT 512 // Max = (V*(V-1)/2); Min = V-1
-#define MAX_DISTANCE 16
-#define DISTANCE_POWER 1
-#define PHEROMONE_POWER 0
-#define EVAPORATION_POWER 0
-#define REWARD_POWER 1
-
-
 #include "ros/ros.h"
 #include "ant_colony/pheromone.h"
 #include "ant_colony/where_next.h"
