@@ -1,6 +1,7 @@
 // TODO MOVE TO CONFIG
 #define BUFFER_SIZE 100000
 #define VERTEX_COUNT 256
+#define REWARD_POWER 1
 
 #include <string>
 #include <vector>
@@ -17,7 +18,7 @@ int main(int argc, char **argv) {
 
   // Setup communication with ROS
   ros::NodeHandle nh;
-  ros::Publisher reporter = nh.advertise<ant_colony::pheromone>("paths_checked", BUFFER_SIZE);
+  ros::Publisher reporter = nh.advertise<ant_colony::pheromone>("pheromone_drops", BUFFER_SIZE);
   ant_colony::pheromone pheromone_msg;
   ros::ServiceClient lost_ant = nh.serviceClient<ant_colony::where_next>("where_next");
   ant_colony::where_next where_next_srv;
@@ -59,7 +60,7 @@ int main(int argc, char **argv) {
       next_vertex = tour.pop_back();
       pheromone_msg.start_vertex = current_vertex;
       pheromone_msg.next_vertex = next_vertex;
-      pheromone_msg.tour_length = tour_length;
+      pheromone_msg.drop = REWARD_POWER / tour_length;
       if (current_vertex == start_vertex) {
 	exploring = true;
 	tour.clear();
