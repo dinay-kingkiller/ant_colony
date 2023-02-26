@@ -27,10 +27,24 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-// Graph Generation
 #include <cmath>
 
-void GenerateIncompleteGraph(std::vector<std::vector<float>>& graph, int vertex_c, float max_weight) {
+void GenerateRandomGraph(std::vector<std::vector<float>>& graph, int vertex_c, float max_weight) {
+  // Generates a connected, undirected, simple, weighted graph.
+  //   For any two vertices in a connected graph, there is a path to connect them.
+  //   An undirected graph is one where the weight of an edge does not depend on the direction
+  //     graph[i][j] == graph[j][i]
+  //   A graph is simple if two edges cannot share the same vertices AND
+  //   the graph does not contain loops: graph[i][i] == 0
+  //   The weight of the edge i->j is stored in graph[i][j]
+  // std::vector<std::vector<float>>& graph:
+  //   The adjacency matrix of the graph. For missing edges: graph[i][j] == 0
+  // int vertex_c:
+  //   The size of the graph: how many vertices does it contain?
+  //   edge_c (the number of edges) is randomized based on vertex_c
+  // float max_weight:
+  //   The max edge weight.
+
   graph.resize(size, std::vector<float>(vertex_c, 0.0));
 
   // Generate a random edge count.
@@ -65,7 +79,23 @@ void GenerateIncompleteGraph(std::vector<std::vector<float>>& graph, int vertex_
   }
 }
 
-void GenerateCompleteGraph(std::vector<std::vector<float>>& graph, int vertex_c, float max_weight) {
+void GenerateCompleteGraph(std::vector<std::vector<float>>& graph, int vertex_c, float max_weight) {  // Generates a connected, undirected, simple, weighted, complte graph.
+  //   For any two vertices in a connected graph, there is a path to connect them.
+  //   An undirected graph is one where the weight of an edge does not depend on the direction
+  //     graph[i][j] == graph[j][i]
+  //   A graph is simple if two edges cannot share the same vertices AND
+  //   the graph does not contain loops: graph[i][i] == 0
+  //   The weight of the edge i->j is stored in graph[i][j]
+  //   A graph is complete if every vertex has an edge to every other vertex
+  //     graph[i][j] != 0 for all i, j except if i==j.
+  // std::vector<std::vector<float>>& graph:
+  //   The adjacency matrix of the graph. For missing edges: graph[i][j] == 0
+  // int vertex_c:
+  //   The size of the graph: how many vertices does it contain?
+  //   edge_c (the number of edges) is randomized based on vertex_c
+  // float max_weight:
+  //   The max edge weight.
+
   graph.resize(size, std::vector<float>(size, 0.0));
   for (int i = 0; i < vertex_c; ++i) {
     for (int j = i+1; j < vertex_c; ++j) {
@@ -76,7 +106,22 @@ void GenerateCompleteGraph(std::vector<std::vector<float>>& graph, int vertex_c,
 }
 
 void GenerateCompleteDigraph(std::vector<std::vector<float>>& graph, int vertex_c, float max_weight) {
-  graph.resize(size, std::vector<float>(size, 0.0));
+  // Generates a connected, undirected, simple, weighted, complte graph.
+  //   For any two vertices in a connected graph, there is a path to connect them.
+  //   An undirected graph is one where the weight of an edge does not depend on the direction
+  //     graph[i][j] == graph[j][i]
+  //   A graph is simple if two edges cannot share the same vertices AND
+  //   the graph does not contain loops: graph[i][i] == 0
+  //   The weight of the edge i->j is stored in graph[i][j]
+  //   A graph is complete if every vertex has an edge to every other vertex
+  //     graph[i][j] != 0 for all i, j except if i==j.
+  // std::vector<std::vector<float>>& graph:
+  //   The adjacency matrix of the graph. For missing edges: graph[i][j] == 0
+  // int vertex_c:
+  //   The size of the graph: how many vertices does it contain?
+  //   edge_c (the number of edges) is randomized based on vertex_c
+  // float max_weight:
+  //   The max edge weight.  graph.resize(size, std::vector<float>(size, 0.0));
   for (int i = 0; i < vertex_c; ++i) {
     for (int j = 0; j < vertex_c; ++j) {
       if (i!=j) {
