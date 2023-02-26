@@ -49,12 +49,13 @@ find_package(catkin REQUIRED COMPONENTS
 add_message_files(
   FILES
   Pheromone.msg
+  Location.msg
 )
 
 ## Generate services in the 'srv' folder
 add_service_files(
   FILES
-  WhereNext.srv
+  Directions.srv
 )
 
 ## Generate actions in the 'action' folder
@@ -129,8 +130,8 @@ add_library(graph src/graph.cpp
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-add_executable(ant_colony_map src/map.cpp)
-add_executable(ant_colony_ant src/ant.cpp)
+add_executable(ant_system src/ant_system.cpp)
+add_executable(forager_ant src/forager_ant.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -144,11 +145,11 @@ add_dependencies(graph
   ant_colony_gencpp
   ant_colony_generate_messages_cpp)
 
-add_dependencies(ant_colony_map
+add_dependencies(ant_system
   ant_colony_gencpp
   ant_colony_generate_messages_cpp)
 
-add_dependencies(ant_colony_ant
+add_dependencies(forager_ant
   ant_colony_gencpp
   ant_colony_generate_messages_cpp)
 
@@ -156,11 +157,11 @@ add_dependencies(ant_colony_ant
 target_link_libraries(graph
   ${catkin_LIBRARIES}
 )
-target_link_libraries(ant_colony_map
+target_link_libraries(ant_system
   ${catkin_LIBRARIES}
   graph
 )
-target_link_libraries(ant_colony_ant
+target_link_libraries(forager_ant
   ${catkin_LIBRARIES}
 )
 

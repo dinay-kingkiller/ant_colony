@@ -6,51 +6,50 @@
 #include "ant_colony/Location.h"
 #include "ant_colony/Pheromone.h"
 
-// ROS Communication
-ros::NodeHandle nh;
-ros::Publisher pheromone_pub;
-ros::Publisher location_pub;
-ros::ServiceClient lost_ant;
-ros::Rate ant_speed(1);
-ant_colony::Pheromone pheromone_msg;
-ant_colony::Location location_msg;
-ant_colony::Directions directions_srv;
 
 // Important Places
 int start_vertex = 0;
 int goal_vertex;
 int current_vertex = start_vertex;
 int next_vertex;
+int travel_time;
+float RewardPower;
+
 
 // Ant on Tour
 std::vector<int> tour = {};
 std::vector<int> path_length = {};
 int tour_length = 0;
 
-//
-float RewardPower;
-
-
-
 int main(int argc, char **argv) {
   // Start talking with ROS.
-  ros::init(argc, argv, "Princess");
-  lost_ant = nh.serviceClient<ant_colony::Directions>("directions");
-  reporter = nh.advertise<ant_colony::Pheromone>("pheromone_deposits", 1000);
+  ros::init(argc, argv, "Princess"); 
+  ros::NodeHandle nh;
+  ros::Rate ant_speed(1);
+  // ROS Communication
+  ant_colony::Pheromone pheromone_msg;
+  ant_colony::Location location_msg;
+  ant_colony::Directions directions_srv;
+  ros::ServiceClient lost_ant = nh.serviceClient<ant_colony::Directions>("directions");
+  ros::Publisher pheromone_pub = nh.advertise<ant_colony::Pheromone>("pheromones", 1000);
+  ros::Publisher location_pub = nh.advertise<ant_colony::Location>("location", 1000);
   nh.getParam("ant_colony/VertexCount", goal_vertex);
   nh.getParam("ant_colony/RewardPower", RewardPower);
-  
-  
+
+  ros::service::waitForService("directions", 1000000);
+  bool exploring = true;
   while (ros::ok()) {
     if (exploring) {
       // The ant wants to know where to go next.
       directions_srv.request.from_here = current_vertex;
       if (not lost_ant.call(directions_srv)) {
-	// ROS_ERROR(name + " could not talk to where_next service.");
+	ROS_ERROR("Could not talk to Directions service.");
 	return 1;
       }
-      next_vertex = where_next_srv.response.go_here;
-      travel_time = where_next_srv.response.travel_time;
+      next_vertex = directions_srv.response.go_here;
+      travel_time = directions_srv.response.travel_time;
+      std::string test = std::to_string(next_vertex);
+
       // The ant is traveling.
       for (int i = 0; i < travel_time; ++i) {
 	location_msg.from_vertex = current_vertex;

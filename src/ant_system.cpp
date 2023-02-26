@@ -1,15 +1,18 @@
 #include <cmath>
+#include <map>
 #include <vector>
 
 #include "ros/ros.h"
 #include "ant_colony/Pheromone.h"
-#include "ant_colony/WhereNext.h"
-#include "ant_colony/ant_colony_graph.h"
+#include "ant_colony/Directions.h"
+#include "ant_colony/graph.h"
 
 // Algorithm Parameters
 int VertexCount;
 int EdgeCount;
 int MaxEdgeWeight;
+int size_x;
+int size_y;
 float DistancePower;
 float EvaporationPower;
 float PheromonePower;
@@ -26,6 +29,8 @@ std::vector<std::vector<float>> pheromones;
 std::vector<std::vector<float>> desirability;
 
 void SetupMap() {
+  desirability.resize(VertexCount, std::vector<float>(VertexCount, 0.0));
+  pheromones.resize(VertexCount, std::vector<float>(VertexCount, 0.0));
   for (int i = 0; i < VertexCount; ++i) {
     for (int j = 0; j < VertexCount; ++j) {
       if (distances[i][j]!=0) {
@@ -49,23 +54,38 @@ void UpdatePheromones() {
   }
 }
 
-bool ChoosePath(ant_colony::WhereNext::Request &req,
-		 ant_colony::WhereNext::Response &res) {
-  int sum=0;
+bool ChoosePath(ant_colony::Directions::Request &req,
+		 ant_colony::Directions::Response &res) {
+  int start = req.from_here;
+  double sum = 0.0;
+  double attraction;
+  double choice = rand() * 1.0 / RAND_MAX;
   for (int i = 0; i < VertexCount; ++i) {
-    sum += std::pow(pheromones[req.start_vertex][i], PheromonePower) * desirability[req.start_vertex][i];
-  }
-  int choice = rand() * sum;
-  
-  sum = 0;
-  for (int i = 0; i < VertexCount; ++i) {
-    sum += std::pow(pheromones[req.start_vertex][i], PheromonePower) * desirability[req.start_vertex][i];
-    if (choice < sum) {
-      res.next_vertex = i;
-      res.edge_weight = distances[req.start_vertex][i];
+    attraction = std::pow(pheromones[start][i], PheromonePower) * desirability[start][i];
+    if (attraction < 0.000001) {
+      continue;
+    }
+    sum += attraction;
+    if (sum + 0.000001 > choice) {
+      res.go_here = i;
+      res.travel_time = distances[start][i];
       return true;
     }
   }
+  ROS_WARN("Not enough pheromones. Using desirability.");
+  sum = 0.0;
+  for (int i = 0; i < VertexCount; ++i) {
+    if (desirability[start][i] < 0.000001) {
+      continue;
+    }
+    sum += desirability[start][i];
+    if (sum > choice) {
+      res.go_here = i;
+      res.travel_time = distances[start][i];
+      return true;
+    }
+  }
+  ROS_ERROR("Could not find best path.");
   return false;
 }
 
@@ -74,23 +94,30 @@ int main(int argc, char **argv) {
   ros::init(argc, argv, "map");
   ros::NodeHandle nh;
   ros::Rate loop_rate(1);
-  
+
   // Set global parameters.
-  nh.getParam("ant_colony/VertexCount", VertexCount);
-  nh.getParam("ant_colony/EdgeCount", EdgeCount);
-  nh.getParam("ant_colony/MaxEdgeWeight", MaxEdgeWeight);
-  nh.getParam("ant_colony/DistancePower", DistancePower);
-  nh.getParam("ant_colony/EvaporationPower", EvaporationPower);
-  nh.getParam("ant_colony/PheromonePower", PheromonePower);
+  nh.getParam("/VertexCount", VertexCount);
+  nh.getParam("/EdgeCount", EdgeCount);
+  nh.getParam("/DistancePower", DistancePower);
+  nh.getParam("/EvaporationPower", EvaporationPower);
+  nh.getParam("/PheromonePower", PheromonePower);
 
   // Setup Graph
-  
-  
-  SetupGraph();
+  std::string GraphType;
+  nh.getParam("/GraphType", GraphType);
+  if (GraphType == "Incomplete") {
+    nh.getParam("/MaxEdgeWeight", MaxEdgeWeight);
+    GenerateRandomGraph(distances, VertexCount, MaxEdgeWeight);
+  }
+  else if (GraphType == "Flat") {
+    nh.getParam("ant_colony/size_x", size_x);
+    nh.getParam("ant_colony/size_y", size_y);
+  }  
+  SetupMap();
 
-  ros::Subscriber pheromone_drops = nh.subscribe("pheromone_deposits", 1000, AddPheromones);
-  ros::ServiceServer where_next_server = nh.advertiseService("where_next", ChoosePath);
-  
+  ros::Subscriber pheromone_drops = nh.subscribe("pheromones", 1000, AddPheromones);
+  ros::ServiceServer scent_trail = nh.advertiseService("directions", ChoosePath);
+  ros::spin();
   while (ros::ok()) {
     UpdatePheromones();
     loop_rate.sleep();

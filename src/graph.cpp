@@ -61,23 +61,29 @@ void GenerateRandomGraph(std::vector<std::vector<int>>& graph, int vertex_c, int
     graph[vertex][i] = rand() % max_weight + 1;
     graph[i][vertex] = graph[vertex][i];
   }
-
+  
   // Generate the remaining edges.
   int location;
   int from;
   int to;
   int remaining; // remaining open locations in adjacency matrix.
   for (int i = 0; i < edge_c-vertex_c; ++i) {
-    remaining = vertex_c*vertex_c - 2*vertex_c + 2 - 2*i;
-    location = rand() % remaining;
-    for (int j = location; j == 0; --j) {
-      if (j/vertex_c == j%vertex_c) ++location;
-      if (graph[j/vertex_c][j%vertex_c]!=0) ++location;
+    remaining = vertex_c*vertex_c - 3*vertex_c + 2 - 2*i;
+    for (location = rand() % remaining; location < vertex_c*vertex_c; ++location) {
+      if (location/vertex_c == location%vertex_c) {
+	continue;
+      }
+      else if (graph[location/vertex_c][location%vertex_c]!=0) {
+	continue;
+      }
+      else {
+	from = location/vertex_c;
+	to = location%vertex_c;
+	graph[from][to] = rand() % max_weight + 1;
+	graph[to][from] = graph[from][to];
+	break;
+      }
     }
-    from = location/vertex_c;
-    to = location/vertex_c;
-    graph[from][to] = rand() % max_weight + 1;
-    graph[to][from] = graph[from][to];
   }
 }
 

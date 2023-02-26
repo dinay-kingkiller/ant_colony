@@ -3,8 +3,16 @@
   <rosparam file="$(find ant_colony)/config/forager_colony.yaml"/>
   <node
       pkg="ant_colony"
-      type="ant_colony_map"
-      name="The Colony"
+      type="ant_system"
+      name="forager_colony"
       required="true"
+      output="screen"
+      />
+  <node
+      pkg="ant_colony"
+      type="forager_ant"
+      name="Princess"
+      required="false"
+      output="screen"
       />
 </launch>
