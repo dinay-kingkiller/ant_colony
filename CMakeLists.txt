@@ -100,8 +100,8 @@ generate_messages(
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-#   INCLUDE_DIRS include
-  LIBRARIES ant_colony_graph
+  INCLUDE_DIRS include 
+#  LIBRARIES graph
   CATKIN_DEPENDS message_runtime roscpp
 #   DEPENDS system_lib
 )
@@ -113,13 +113,12 @@ catkin_package(
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 include_directories(
-#   include
+  include
   ${catkin_INCLUDE_DIRS}
 )
 
 ## Declare a C++ library
-add_library(
-  ant_colony_graph src/graph.cpp
+add_library(graph src/graph.cpp
 )
 
 ## Add cmake target dependencies of the library
@@ -141,20 +140,30 @@ add_executable(ant_colony_ant src/ant.cpp)
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above
+add_dependencies(graph
+  ant_colony_gencpp
+  ant_colony_generate_messages_cpp)
+
 add_dependencies(ant_colony_map
   ant_colony_gencpp
   ant_colony_generate_messages_cpp)
+
 add_dependencies(ant_colony_ant
   ant_colony_gencpp
   ant_colony_generate_messages_cpp)
 
 ## Specify libraries to link a library or executable target against
+target_link_libraries(graph
+  ${catkin_LIBRARIES}
+)
 target_link_libraries(ant_colony_map
   ${catkin_LIBRARIES}
+  graph
 )
 target_link_libraries(ant_colony_ant
   ${catkin_LIBRARIES}
 )
+
 
 #############
 ## Install ##
@@ -178,7 +187,7 @@ target_link_libraries(ant_colony_ant
 
 ## Mark libraries for installation
 ## See http://docs.ros.org/melodic/api/catkin/html/howto/format1/building_libraries.html
-install(TARGETS ant_colony_graph
+install(TARGETS graph
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_GLOBAL_BIN_DESTINATION}

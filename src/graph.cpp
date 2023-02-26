@@ -29,6 +29,7 @@
 
 #include <cmath>
 #include <vector>
+#include "ant_colony/graph.h"
 
 void GenerateRandomGraph(std::vector<std::vector<int>>& graph, int vertex_c, int max_weight) {
   // Generates a connected, undirected, simple, weighted graph.

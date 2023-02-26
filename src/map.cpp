@@ -4,6 +4,7 @@
 #include "ros/ros.h"
 #include "ant_colony/Pheromone.h"
 #include "ant_colony/WhereNext.h"
+#include "ant_colony/graph.h"
 
 // Algorithm Parameters
 int VertexCount;
