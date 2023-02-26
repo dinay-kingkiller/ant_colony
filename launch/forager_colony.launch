@@ -1,0 +1,9 @@
+<launch>
+  <rosparam file="$(find ant_colony)/config/forager_colony.yaml"/>
+  <node
+      pkg="ant_colony"
+      type="ant_colony_map"
+      name="The Colony"
+      required="true"
+      />
+</launch>

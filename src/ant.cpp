@@ -9,11 +9,13 @@
 int main(int argc, char **argv) {
   int VertexCount;
   float RewardPower;
-  
-  // Setup this ant
-  std::string name = argv[1];
-  ros::init(argc, argv, name);
+  std::string name;
 
+  // Setup this ant
+  if (argc==2) {name = argv[1];}
+  else {name = "Princess";}
+  ros::init(argc, argv, name);
+  
   // Setup communication with ROS
   ros::NodeHandle nh;
   nh.getParam("ant_colony/VertexCount", VertexCount);

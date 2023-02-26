@@ -1,5 +1,5 @@
-#include <vector>
 #include <cmath>
+#include <vector>
 
 #include "ros/ros.h"
 #include "ant_colony/Pheromone.h"

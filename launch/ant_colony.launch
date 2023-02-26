@@ -1,5 +1,5 @@
 <launch>
-  <rosparam file="$(find ant_colony)/config/acs.yaml">
+  <rosparam file="$(find ant_colony)/config/acs.yaml"/>
   <node
       pkg="ant_colony"
       type="map"

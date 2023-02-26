@@ -3,7 +3,7 @@ AntCount: 20
 
 # Map parameters
 VertexCount: 16 # uint8_t
-EdgeCount: 512 # Max: (V*(V-1)/2); Min: V-1
+EdgeCount: 32 # Max: (V*(V-1)/2); Min: V-1
 MaxEdgeWeight: 8 # uint8_t
 
 # How much will ants avoid long paths? (>=1, default 1):
