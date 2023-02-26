@@ -1,0 +1,4 @@
+int16 from_here
+---
+int16 go_here
+int16 travel_time

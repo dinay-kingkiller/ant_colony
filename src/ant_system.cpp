@@ -25,42 +25,14 @@ std::vector<std::vector<float>> pheromones;
 //  desirability[i][j] = 1.0/distance[i][j]**DistancePower.
 std::vector<std::vector<float>> desirability;
 
-void GenerateMap() {
-  uint8_t from_node;
-  uint8_t to_node;
-  distances.resize(VertexCount, std::vector<int>(VertexCount, 0));
-  pheromones.resize(VertexCount, std::vector<float>(VertexCount, 0.0));
-  desirability.resize(VertexCount, std::vector<float>(VertexCount, 0.0));
-  
-  // Generate a connected graph.
-  for (int i = 1; i < VertexCount; ++i) {
-    from_node = rand() % i;
-    distances[from_node][i] = rand() % MaxEdgeWeight + 1;
-    distances[i][from_node] = distances[from_node][i];
-    pheromones[from_node][i] = 1.0;
-    pheromones[i][from_node] = 1.0;
-    desirability[from_node][i] = std::pow(distances[from_node][i], -DistancePower);
-    desirability[i][from_node] = std::pow(distances[i][from_node], -DistancePower);
-  }
-
-  // Generate remaining edges.
-  int remaining_locations;
-  int location;
-  for (int i = 0; i < EdgeCount-VertexCount; ++i) {
-    remaining_locations = VertexCount*VertexCount - 2*VertexCount + 2 - 2*i;
-    location = rand() % remaining_locations;
-    for (int j = location; j == 0; --j) {
-      if (j/VertexCount == j%VertexCount) ++location;
-      if (distances[j/VertexCount][j%VertexCount]!=0) ++location;
+void SetupMap() {
+  for (int i = 0; i < VertexCount; ++i) {
+    for (int j = 0; j < VertexCount; ++j) {
+      if (distances[i][j]!=0) {
+	desirability[i][j] = pow(distances[i][j], -DistancePower);
+	pheromones[i][j] = 1.0;
+      }
     }
-    from_node = location / VertexCount;
-    to_node = location % VertexCount;
-    distances[from_node][to_node] = rand() % MaxEdgeWeight + 1;
-    distances[to_node][from_node] = distances[from_node][i];
-    pheromones[from_node][to_node] = 1.0;
-    pheromones[to_node][from_node] = 1.0;
-    desirability[from_node][to_node] = std::pow(distances[from_node][to_node], -DistancePower);
-    desirability[to_node][from_node] = std::pow(distances[to_node][from_node], -DistancePower);
   }
 }
 
@@ -111,7 +83,10 @@ int main(int argc, char **argv) {
   nh.getParam("ant_colony/EvaporationPower", EvaporationPower);
   nh.getParam("ant_colony/PheromonePower", PheromonePower);
 
-  GenerateMap();
+  // Setup Graph
+  
+  
+  SetupGraph();
 
   ros::Subscriber pheromone_drops = nh.subscribe("pheromone_deposits", 1000, AddPheromones);
   ros::ServiceServer where_next_server = nh.advertiseService("where_next", ChoosePath);

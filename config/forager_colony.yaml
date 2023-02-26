@@ -2,7 +2,7 @@
 AntCount: 10
 
 # Map Parameters
-GraphType: incomplete_undirected
+GraphType: Incomplete
 VertexCount: 16
 MaxEdgeWeight: 8
 
