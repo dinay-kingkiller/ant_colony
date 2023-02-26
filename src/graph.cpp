@@ -28,6 +28,7 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <cmath>
+#include <ctime>
 #include <vector>
 #include "ant_colony/graph.h"
 
@@ -48,6 +49,7 @@ void GenerateRandomGraph(std::vector<std::vector<int>>& graph, int vertex_c, int
   //   The max edge weight.
 
   graph.resize(vertex_c, std::vector<int>(vertex_c, 0));
+  srand(time(NULL));
 
   // Generate a random edge count.
   int max_edges = vertex_c * (vertex_c-1) / 2;
@@ -105,6 +107,7 @@ void GenerateCompleteGraph(std::vector<std::vector<int>>& graph, int vertex_c, i
   //   The max edge weight.
 
   graph.resize(vertex_c, std::vector<int>(vertex_c, 0));
+  srand(time(NULL));
   for (int i = 0; i < vertex_c; ++i) {
     for (int j = i+1; j < vertex_c; ++j) {
       graph[i][j] = rand() % max_weight + 1;
@@ -130,6 +133,7 @@ void GenerateCompleteDigraph(std::vector<std::vector<int>>& graph, int vertex_c,
   //   The max edge weight.
 
   graph.resize(vertex_c, std::vector<int>(vertex_c, 0));
+  srand(time(NULL));
   for (int i = 0; i < vertex_c; ++i) {
     for (int j = 0; j < vertex_c; ++j) {
       if (i!=j) {
@@ -154,6 +158,7 @@ void GenerateFlatGraph(std::vector<int>& coord_x, std::vector<int>& coord_y, std
   //   The dimensions of the map.
 
   graph.resize(vertex_c, std::vector<int>(vertex_c, 0));
+  srand(time(NULL));
   coord_x.resize(vertex_c, 0);
   coord_y.resize(vertex_c, 0);
   int diff_x;

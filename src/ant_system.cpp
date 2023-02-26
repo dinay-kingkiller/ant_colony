@@ -1,4 +1,5 @@
 #include <cmath>
+#include <ctime>
 #include <map>
 #include <vector>
 
@@ -94,6 +95,7 @@ int main(int argc, char **argv) {
   ros::init(argc, argv, "map");
   ros::NodeHandle nh;
   ros::Rate loop_rate(1);
+  srand(time(NULL));
 
   // Set global parameters.
   nh.getParam("/VertexCount", VertexCount);
