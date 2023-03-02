@@ -1,6 +1,3 @@
-# Ant Parameters
-AntCount: 10
-
 # Map Parameters
 GraphType: complete_undirected
 VertexCount: 16

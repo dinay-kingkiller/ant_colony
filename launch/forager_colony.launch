@@ -12,7 +12,7 @@
       pkg="ant_colony"
       type="forager_ant"
       name="Princess"
-      required="false"
+      required="true"
       output="screen"
       />
 </launch>

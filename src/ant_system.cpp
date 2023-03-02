@@ -18,11 +18,7 @@ float DistancePower;
 float EvaporationPower;
 float PheromonePower;
 
-// distances describes the simple, undirected, connected, weighted graph as an adjacency matrix.
-// distances[i][j] is the time it takes to go from i to j.
-// If the path is untraversable distances[i][j]==0.
-// The graph is undirected: distances[i][j]==distances[j][i]
-// The graph is simple (no loops): distances[i][i]==0
+// distances is an adjacency matrix for finding edges.
 std::vector<std::vector<int>> distances;
 std::vector<std::vector<float>> pheromones;
 // desirability is a matrix of intermediate calculations:

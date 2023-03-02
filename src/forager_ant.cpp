@@ -48,14 +48,17 @@ int main(int argc, char **argv) {
       }
       next_vertex = directions_srv.response.go_here;
       travel_time = directions_srv.response.travel_time;
-      std::string test = std::to_string(next_vertex);
-
+      
       // The ant is traveling.
+      location_msg.name = ros::this_node::getName();
+      location_msg.from_vertex = current_vertex;
+      location_msg.to_vertex = next_vertex;
       for (int i = 0; i < travel_time; ++i) {
-	location_msg.from_vertex = current_vertex;
-	location_msg.to_vertex = next_vertex;
 	location_msg.progress = i;
 	location_pub.publish(location_msg);
+	ROS_INFO_STREAM("From Vertex: "<<location_msg.from_vertex);
+	ROS_INFO_STREAM("To Vertex: "<<location_msg.to_vertex);
+	ROS_INFO_STREAM("Progress: "<<location_msg.progress);
 	ant_speed.sleep();
       }
       path_length.push_back(travel_time);
@@ -74,6 +77,7 @@ int main(int argc, char **argv) {
       tour.pop_back();
       // The ant is traveling.
       for (int i = 0; i < travel_time; ++i) {
+	location_msg.name = ros::this_node::getName();
 	location_msg.from_vertex = current_vertex;
 	location_msg.to_vertex = next_vertex;
 	location_msg.progress = i;
