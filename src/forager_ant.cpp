@@ -1,3 +1,32 @@
+// BSD 3-Clause License                                                                                 
+//                                                                                                      
+// Copyright (c) 2023, Dinay Kingkiller                                                                 
+//                                                                                                      
+// Redistribution and use in source and binary forms, with or without                                   
+// modification, are permitted provided that the following conditions are met:                          
+//                                                                                                      
+// 1. Redistributions of source code must retain the above copyright notice, this                       
+//    list of conditions and the following disclaimer.                                                  
+//                                                                                                      
+// 2. Redistributions in binary form must reproduce the above copyright notice,                         
+//    this list of conditions and the following disclaimer in the documentation                         
+//    and/or other materials provided with the distribution.                                            
+//                                                                                                      
+// 3. Neither the name of the copyright holder nor the names of its                                     
+//    contributors may be used to endorse or promote products derived from                              
+//    this software without specific prior written permission.                                          
+//                                                                                                      
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"                          
+// AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE                            
+// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE                       
+// DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE                         
+// FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL                           
+// DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR                           
+// SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER                           
+// CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,                        
+// OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE                        
+// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
 #include <string>
 #include <vector>
 
@@ -18,8 +47,8 @@ float RewardPower;
 
 
 // Ant on Tour
-std::vector<uint16_t> tour = {};
-std::vector<uint16_t> path_length = {};
+std::vector<uint16_t> tour = {0};
+std::vector<uint16_t> path_length = {0};
 uint16_t tour_length = 0;
 
 int main(int argc, char **argv) {
@@ -37,9 +66,6 @@ int main(int argc, char **argv) {
   nh.getParam("VertexCount", VertexCount);
   nh.getParam("RewardPower", RewardPower);
   goal_vertex = VertexCount - 1;
-  ROS_INFO_STREAM("VC: "<<VertexCount);
-  ROS_INFO_STREAM("GV: "<<goal_vertex);
-
 
   ros::service::waitForService("directions", 1000000);
   bool exploring = true;
@@ -61,10 +87,6 @@ int main(int argc, char **argv) {
       for (uint16_t i = 0; i < travel_time; ++i) {
 	location_msg.progress = i;
 	location_pub.publish(location_msg);
-	ROS_INFO_STREAM("Exploring");
-	ROS_INFO_STREAM("From Vertex: "<<location_msg.from_vertex);
-	ROS_INFO_STREAM("To Vertex: "<<location_msg.to_vertex);
-	ROS_INFO_STREAM("Progress: "<<location_msg.progress);
 	ant_speed.sleep();
       }
       path_length.push_back(travel_time);
@@ -72,7 +94,6 @@ int main(int argc, char **argv) {
       tour_length += travel_time;
       current_vertex = next_vertex;
       if (current_vertex == goal_vertex) {
-	ROS_INFO_STREAM("GOAL!!! "<<goal_vertex);
 	exploring = false;
       }
     }
@@ -89,17 +110,13 @@ int main(int argc, char **argv) {
 	location_msg.to_vertex = next_vertex;
 	location_msg.progress = i;
 	location_pub.publish(location_msg);
-	ROS_INFO_STREAM("Returning");
-	ROS_INFO_STREAM("From Vertex: "<<location_msg.from_vertex);
-	ROS_INFO_STREAM("To Vertex: "<<location_msg.to_vertex);
-	ROS_INFO_STREAM("Progress: "<<location_msg.progress);
 	ant_speed.sleep();
       }
       pheromone_msg.from_vertex = current_vertex;
       pheromone_msg.to_vertex = next_vertex;
       pheromone_msg.deposit = RewardPower / tour_length;
       pheromone_pub.publish(pheromone_msg);
-      if (current_vertex == start_vertex) {
+      if (tour.size() == 0) {
 	exploring = true;
 	tour.clear();
 	path_length.clear();
