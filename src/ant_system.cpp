@@ -54,34 +54,54 @@ void UpdatePheromones() {
 bool ChoosePath(ant_colony::Directions::Request &req,
 		 ant_colony::Directions::Response &res) {
   int start = req.from_here;
-  double sum = 0.0;
   double attraction;
+  double attraction_ttl = 0.0;
+  double desirability_ttl = 0.0;
+  double sum;
   double choice = rand() * 1.0 / RAND_MAX;
+
   for (int i = 0; i < VertexCount; ++i) {
     attraction = std::pow(pheromones[start][i], PheromonePower) * desirability[start][i];
-    if (attraction < 0.000001) {
+    attraction_ttl += attraction;
+    desirability_ttl += desirability[start][i];
+  }
+  
+  ROS_INFO_STREAM("Choice: "<<choice);
+  sum = 0.0;
+  for (int i = 0; i < VertexCount; ++i) {
+    attraction = std::pow(pheromones[start][i], PheromonePower) * desirability[start][i];
+    ROS_INFO_STREAM("Desirability: "<<desirability[start][i]);
+    ROS_INFO_STREAM("Attraction: "<<attraction);
+    if (attraction / attraction_ttl < 0.0001) {
       continue;
     }
     sum += attraction;
-    if (sum + 0.000001 > choice) {
+    if (sum / attraction_ttl + 0.0001 > choice) {
       res.go_here = i;
       res.travel_time = distances[start][i];
+      ROS_INFO_STREAM("From Here: "<<req.from_here);
+      ROS_INFO_STREAM("Go Here: "<<res.go_here);
       return true;
     }
   }
+  
+  ROS_INFO_STREAM("sum: "<<sum);
   ROS_WARN("Not enough pheromones. Using desirability.");
   sum = 0.0;
   for (int i = 0; i < VertexCount; ++i) {
-    if (desirability[start][i] < 0.000001) {
+    if (desirability[start][i] / desirability_ttl < 0.000001) {
       continue;
     }
     sum += desirability[start][i];
-    if (sum > choice) {
+    if (sum / desirability_ttl > choice) {
       res.go_here = i;
       res.travel_time = distances[start][i];
+      ROS_INFO_STREAM("From Here: "<<req.from_here);
+      ROS_INFO_STREAM("Go Here: "<<res.go_here);
       return true;
     }
   }
+  ROS_INFO_STREAM("sum: "<<sum);
   ROS_ERROR("Could not find best path.");
   return false;
 }

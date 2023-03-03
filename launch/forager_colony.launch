@@ -6,7 +6,6 @@
       type="ant_system"
       name="forager_colony"
       required="true"
-      output="screen"
       />
   <node
       pkg="ant_colony"
