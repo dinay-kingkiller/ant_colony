@@ -35,11 +35,7 @@
 ///
 /// This node interacts with ROS in two ways:
 /// 1. This node subscribes to Pheromone* msgs to update the pheromone map.
-/// 2. This node provides a direction service to ant nodes.
-///
-/// When this node is launched it will generate a randomized map for ant travel.
-/// This map will track ant pheromones for the direction service. Every second,
-/// the pheromones will decay according to the EvaporationPower parameter.
+/// 2. This node provides a direction service based on the pheromone map.
 
 #include <cmath>
 #include <ctime>
@@ -51,15 +47,14 @@
 #include "ant_colony/Directions.h"
 #include "ant_colony/graph.h"
 
-// Algorithm Parameters
+// Parameters
 int VertexCount;
-int EdgeCount;
-int MaxEdgeWeight;
-int size_x;
-int size_y;
+float size_x;
+float size_y;
 float DistancePower;
 float EvaporationPower;
 float PheromonePower;
+float RewardPower;
 
 // distances is an adjacency matrix for finding edges.
 std::vector<std::vector<int>> distances;
@@ -68,7 +63,7 @@ std::vector<float> pheromones;
 //  desirability[i][j] = 1.0/distance[i][j]**DistancePower.
 std::vector<std::vector<float>> desirability;
 
-void SetupMap() {
+void SetupPheromones() {
   desirability.resize(VertexCount, std::vector<float>(VertexCount, 0.0));
   pheromones.resize(VertexCount*VertexCount, 0.0);
   for (int i = 0; i < VertexCount; ++i) {
@@ -81,7 +76,7 @@ void SetupMap() {
   }
 }
 
-void Add2Edge(const ant_colony::PheromoneEdge::ConstPtr& msg) {
+void AddEdgePheromones(const ant_colony::PheromoneEdge::ConstPtr& msg) {
   float max;
   int pheromone_i = msg->from_vertex * VertexCount + msg->to_vertex;
   int pheromone_j = msg->to_vertex * VertexCount + msg->from_vertex;
@@ -89,6 +84,7 @@ void Add2Edge(const ant_colony::PheromoneEdge::ConstPtr& msg) {
   pheromones[pheromone_j] += msg->deposit;
   max = pheromones[pheromone_i];
   // TODO: Verify pheromones don't go up if not deposited.
+  // i.e. new deposits should always be the max value.
   for (int i = 0; i < VertexCount*VertexCount; ++i) {
     if (pheromones[i] < .001) {
       pheromones[i] = 0.0;
@@ -104,7 +100,7 @@ void Add2Edge(const ant_colony::PheromoneEdge::ConstPtr& msg) {
   }
 }
 
-void Add2Path(const ant_colony::PheromonePath::ConstPtr& msg) {
+void AddPathPheromones(const ant_colony::PheromonePath::ConstPtr& msg) {
 }
 
 void UpdatePheromones() {
@@ -122,6 +118,7 @@ bool ChoosePath(ant_colony::Directions::Request &req,
   double sum;
   double choice = rand() * 1.0 / RAND_MAX;
 
+  // Generate attraction and desirability sums.
   for (int i = 0; i < VertexCount; ++i) {
     attraction = std::pow(pheromones[start*VertexCount + i], PheromonePower)
       * desirability[start][i];
@@ -129,13 +126,11 @@ bool ChoosePath(ant_colony::Directions::Request &req,
     desirability_ttl += desirability[start][i];
   }
   
-  ROS_INFO_STREAM("Choice: "<<choice);
+  // Choose based on attraction
   sum = 0.0;
   for (int i = 0; i < VertexCount; ++i) {
     attraction = std::pow(pheromones[start*VertexCount + i], PheromonePower)
       * desirability[start][i];
-    ROS_INFO_STREAM("Desirability: "<<desirability[start][i]);
-    ROS_INFO_STREAM("Attraction: "<<attraction);
     if (attraction / attraction_ttl < 0.001) {
       continue;
     }
@@ -143,13 +138,11 @@ bool ChoosePath(ant_colony::Directions::Request &req,
     if (sum / attraction_ttl + 0.001 > choice) {
       res.go_here = i;
       res.travel_time = distances[start][i];
-      ROS_INFO_STREAM("From Here: "<<req.from_here);
-      ROS_INFO_STREAM("Go Here: "<<res.go_here);
       return true;
     }
   }
-  
-  ROS_INFO_STREAM("sum: "<<sum);
+
+  // Use desirability if there is only faint pheromones left.
   ROS_WARN("Not enough pheromones. Using desirability.");
   sum = 0.0;
   for (int i = 0; i < VertexCount; ++i) {
@@ -160,16 +153,16 @@ bool ChoosePath(ant_colony::Directions::Request &req,
     if (sum / desirability_ttl > choice) {
       res.go_here = i;
       res.travel_time = distances[start][i];
-      ROS_INFO_STREAM("From Here: "<<req.from_here);
-      ROS_INFO_STREAM("Go Here: "<<res.go_here);
       return true;
     }
   }
-  ROS_INFO_STREAM("sum: "<<sum);
   ROS_ERROR("Could not find best path.");
   return false;
 }
 
+/// When this node is launched it will generate a randomized map for ant travel.
+/// This map will track ant pheromones for the direction service. Every second,
+/// the pheromones will decay according to the EvaporationPower parameter.
 int main(int argc, char **argv) {
   // Start up map node.
   ros::init(argc, argv, "map");

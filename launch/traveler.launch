@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<launch>
+  <rosparam file="$(find ant_colony)/config/forager_colony.yaml"/>
+  <node
+      pkg="ant_colony"
+      type="ant_system"
+      name="forager_colony"
+      required="true"
+      />
+  <node
+      pkg="ant_colony"
+      type="forager_ant"
+      name="Princess"
+      required="true"
+      output="screen"
+      />
+</launch>

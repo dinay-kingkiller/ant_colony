@@ -1,8 +1,9 @@
 # Map Parameters
-GraphType: Incomplete
 VertexCount: 5
-MaxEdgeWeight: 2
+size_x: 60
+size_y: 60
 
+# Algorithm Parameters
 DistancePower: 1.0 # Increase to avoid long trips.
 PheromonePower: 0.5 # Increase to trust other ants.
 EvaporationPower: 0.0 # Increase to remove older paths.
