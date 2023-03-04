@@ -39,6 +39,7 @@
 
 #include <cmath>
 #include <ctime>
+#include <set>
 #include <vector>
 
 #include "ros/ros.h"
@@ -101,6 +102,46 @@ void AddEdgePheromones(const ant_colony::PheromoneEdge::ConstPtr& msg) {
 }
 
 void AddPathPheromones(const ant_colony::PheromonePath::ConstPtr& msg) {
+  float max;
+  int from_vertex;
+  int to_vertex;
+  std::set<std::set<int>> edges;
+  std::set<std::set<int>>::iterator e_itr;
+
+  // Filter edges.
+  for (int i = 1; i < msg->tour.size(); ++i) {
+    edges.insert({msg->tour[i-1], msg->tour[i]});
+  }
+
+  // Add pheromones.
+  max = 0.0;
+  for (e_itr = edges.begin(); e_itr != edges.end(); ++e_itr) {
+    std::set<int> edge = *e_itr;
+    std::set<int>::iterator from_vertex = edge.begin();
+    std::set<int>::iterator to_vertex = edge.end();
+    pheromones[*from_vertex * VertexCount + *to_vertex] += msg->deposit;
+    pheromones[*to_vertex * VertexCount + *from_vertex] += msg->deposit;
+    if (pheromones[*from_vertex * VertexCount + *to_vertex] > max) {
+      max = pheromones[*from_vertex * VertexCount + *to_vertex];
+    }
+  }
+
+  // Normalize pheromones.
+  // TODO: Verify pheromones don't go up if not deposited.
+  // i.e. new deposits should always be the max value.
+  for (int i = 0; i < VertexCount*VertexCount; ++i) {
+    if (pheromones[i] < .001) {
+      pheromones[i] = 0.0;
+    }
+    else if (pheromones[i] + .001 > max) {
+      ROS_WARN_STREAM("Possible max value"<<pheromones[i]/max);
+      ROS_WARN_STREAM("i: "<<i/VertexCount<<" j: "<<i%VertexCount);
+      pheromones[i] = 1.0;
+    }
+    else {
+      pheromones[i] = pheromones[i] / max;
+    }
+  }
 }
 
 void UpdatePheromones() {
