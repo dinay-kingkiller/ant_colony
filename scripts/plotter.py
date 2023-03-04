@@ -27,7 +27,6 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-
 import rospy
 
 from matplotlib.pyplot import plot
@@ -38,11 +37,10 @@ def update(data):
     for from_p, to_p, value in zip(zip(data.from_x, data.from_y),
                                    zip(data.to_x, data.to_y),
                                    data.values):
-        plot(from_p, to_p, hsv(value))
-
+        plot(from_p, to_p, linewidth=value)
 
 if __name__ == "__main__":
     rospy.init_node("plotter")
-    rospy.Subscriber("plot_data", PlotPheromones, update)
+    rospy.Subscriber("plot_data", PlotData, update)
     rospy.spin()
     plotter()

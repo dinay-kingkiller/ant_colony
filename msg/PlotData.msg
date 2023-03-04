@@ -1,5 +1,5 @@
-int16[] from_x
-int16[] from_y
-int16[] to_x
-int16[] to_x
+float[] from_x
+float[] from_y
+float[] to_x
+float[] to_y
 float strength

@@ -81,8 +81,33 @@ void SetupMap() {
 }
 
 void AddPheromones(const ant_colony::Pheromone::ConstPtr& msg) {
-  pheromones[msg->from_vertex][msg->to_vertex] += msg->deposit;
-  pheromones[msg->to_vertex][msg->from_vertex] += msg->deposit;
+  float max;
+  int i;
+  int j;
+  pheromone_i = msg->from_vertex * VertexCount + msg->to_vertex;
+  pheromone_j = msg->to_vertex * VertexCount + msg->from_vertex;
+  pheromones[pheromone_i] += msg->deposit;
+  pheromones[pheromone_j] += msg->deposit;
+  max = pheromones[pheromone_i];
+  // TODO: Verify pheromones don't go up if not deposited.
+  for (int i = 0; i < VertexCount**VertexCount; ++i) {
+    if (pheromeones[i] < .001) {
+      pheromones[i] = 0.0;
+    }
+    else if (pheromones[i] + .001 > max) {
+      ROS_WARN_STREAM("Possible max'd value"<<pheromones[i]/max);
+      ROS_WARN_STREAM("i: "<<i/VertexCount<<" j: "<<j%VertexCount);
+      pheromones[i] = 1.0;
+    }
+    else {
+      pheromones[i] = pheromones[i] / max;
+    }
+  }
+}
+
+void GetPlottable(vector<int> plot_data) {
+  
+  
 }
 
 void UpdatePheromones() {
@@ -114,11 +139,11 @@ bool ChoosePath(ant_colony::Directions::Request &req,
     attraction = std::pow(pheromones[start][i], PheromonePower) * desirability[start][i];
     ROS_INFO_STREAM("Desirability: "<<desirability[start][i]);
     ROS_INFO_STREAM("Attraction: "<<attraction);
-    if (attraction / attraction_ttl < 0.0001) {
+    if (attraction / attraction_ttl < 0.001) {
       continue;
     }
     sum += attraction;
-    if (sum / attraction_ttl + 0.0001 > choice) {
+    if (sum / attraction_ttl + 0.001 > choice) {
       res.go_here = i;
       res.travel_time = distances[start][i];
       ROS_INFO_STREAM("From Here: "<<req.from_here);
@@ -180,6 +205,9 @@ int main(int argc, char **argv) {
   ros::spin();
   while (ros::ok()) {
     UpdatePheromones();
+
+
+    
     loop_rate.sleep();
   }
   return 0;
