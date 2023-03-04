@@ -31,18 +31,15 @@
 #include "ros/ros.h"
 #include "ant_colony/Directions.h"
 #include "ant_colony/Location.h"
-#include "ant_colony/Pheromone.h"
-
+#include "ant_colony/PheromoneEdge.h"
 
 // Important Places
-int start_vertex = 0;
+int current_vertex = 0;
 int goal_vertex;
-int current_vertex = start_vertex;
 int next_vertex;
 int travel_time;
 int VertexCount; 
 float RewardPower;
-
 
 // Ant on Tour
 std::vector<int> tour = {0};
@@ -55,11 +52,11 @@ int main(int argc, char **argv) {
   ros::NodeHandle nh;
   ros::Rate ant_speed(1);
   // ROS Communication
-  ant_colony::Pheromone pheromone_msg;
+  ant_colony::PheromoneEdge pheromone_msg;
   ant_colony::Location location_msg;
   ant_colony::Directions directions_srv;
   ros::ServiceClient lost_ant = nh.serviceClient<ant_colony::Directions>("directions");
-  ros::Publisher pheromone_pub = nh.advertise<ant_colony::Pheromone>("pheromones", 1000);
+  ros::Publisher pheromone_pub = nh.advertise<ant_colony::PheromoneEdge>("edge_pheromones", 1000);
   ros::Publisher location_pub = nh.advertise<ant_colony::Location>("location", 1000);
   nh.getParam("VertexCount", VertexCount);
   nh.getParam("RewardPower", RewardPower);
@@ -96,6 +93,7 @@ int main(int argc, char **argv) {
       }
     }
     else {
+      // TODO do not re-drop pheromones.
       // The ant is spreading the good news!
       travel_time = path_length.back();
       path_length.pop_back();

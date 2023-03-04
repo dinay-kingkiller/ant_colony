@@ -34,7 +34,7 @@
 /// https://www.cs.unibo.it/babaoglu/courses/cas05-06/tutorials/Ant_Colony_Optimization.pdf
 ///
 /// This node interacts with ROS in two ways:
-/// 1. This node subscribes to Pheromone msgs to update the pheromone map.
+/// 1. This node subscribes to Pheromone* msgs to update the pheromone map.
 /// 2. This node provides a direction service to ant nodes.
 ///
 /// When this node is launched it will generate a randomized map for ant travel.
@@ -46,7 +46,8 @@
 #include <vector>
 
 #include "ros/ros.h"
-#include "ant_colony/Pheromone.h"
+#include "ant_colony/PheromoneEdge.h"
+#include "ant_colony/PheromonePath.h"
 #include "ant_colony/Directions.h"
 #include "ant_colony/graph.h"
 
@@ -80,7 +81,7 @@ void SetupMap() {
   }
 }
 
-void AddPheromones(const ant_colony::Pheromone::ConstPtr& msg) {
+void Add2Edge(const ant_colony::PheromoneEdge::ConstPtr& msg) {
   float max;
   int pheromone_i = msg->from_vertex * VertexCount + msg->to_vertex;
   int pheromone_j = msg->to_vertex * VertexCount + msg->from_vertex;
@@ -93,7 +94,7 @@ void AddPheromones(const ant_colony::Pheromone::ConstPtr& msg) {
       pheromones[i] = 0.0;
     }
     else if (pheromones[i] + .001 > max) {
-      ROS_WARN_STREAM("Possible max'd value"<<pheromones[i]/max);
+      ROS_WARN_STREAM("Possible max value"<<pheromones[i]/max);
       ROS_WARN_STREAM("i: "<<i/VertexCount<<" j: "<<i%VertexCount);
       pheromones[i] = 1.0;
     }
@@ -101,6 +102,9 @@ void AddPheromones(const ant_colony::Pheromone::ConstPtr& msg) {
       pheromones[i] = pheromones[i] / max;
     }
   }
+}
+
+void Add2Path(const ant_colony::PheromonePath::ConstPtr& msg) {
 }
 
 void UpdatePheromones() {
@@ -149,7 +153,7 @@ bool ChoosePath(ant_colony::Directions::Request &req,
   ROS_WARN("Not enough pheromones. Using desirability.");
   sum = 0.0;
   for (int i = 0; i < VertexCount; ++i) {
-    if (desirability[start][i] / desirability_ttl < 0.000001) {
+    if (desirability[start][i] / desirability_ttl < 0.001) {
       continue;
     }
     sum += desirability[start][i];
@@ -193,8 +197,9 @@ int main(int argc, char **argv) {
   }  
   SetupMap();
 
-  ros::Subscriber pheromone_drops = nh.subscribe("pheromones", 1000, AddPheromones);
-  ros::ServiceServer scent_trail = nh.advertiseService("directions", ChoosePath);
+  ros::Subscriber scent_path = nh.subscribe("edge_pheromones", 1000, Add2Edge);
+  ros::Subscriber scent_edge = nh.subscribe("path_pheromones", 1000, Add2Path);
+  ros::ServiceServer scent_choice = nh.advertiseService("directions", ChoosePath);
   ros::spin();
   while (ros::ok()) {
     UpdatePheromones();

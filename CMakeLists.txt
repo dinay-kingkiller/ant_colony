@@ -117,8 +117,7 @@ catkin_package(
 ## Your package locations should be listed before other locations
 include_directories(
   include
-  ${catkin_INCLUDE_DIRS}
-)
+  ${catkin_INCLUDE_DIRS})
 
 ## Declare a C++ library
 add_library(graph src/graph.cpp
@@ -134,6 +133,7 @@ add_library(graph src/graph.cpp
 ## The recommended prefix ensures that target names across packages don't collide
 add_executable(ant_system src/ant_system.cpp)
 add_executable(forager_ant src/forager_ant.cpp)
+add_executable(traveler_ant src/traveler_ant.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -155,17 +155,23 @@ add_dependencies(forager_ant
   ant_colony_gencpp
   ant_colony_generate_messages_cpp)
 
+add_dependencies(traveler_ant
+  ant_colony_gencpp
+  ant_colony_generate_messages_cpp)
+
 ## Specify libraries to link a library or executable target against
 target_link_libraries(graph
-  ${catkin_LIBRARIES}
-)
+  ${catkin_LIBRARIES})
+
 target_link_libraries(ant_system
-  ${catkin_LIBRARIES}
   graph
-)
+  ${catkin_LIBRARIES})
+
 target_link_libraries(forager_ant
-  ${catkin_LIBRARIES}
-)
+  ${catkin_LIBRARIES})
+
+target_link_libraries(traveler_ant
+  ${catkin_LIBRARIES})
 
 
 #############

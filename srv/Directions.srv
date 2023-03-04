@@ -1,4 +1,4 @@
-int16 from_here
+int32 from_here
 ---
-int16 go_here
-int16 travel_time
+int32 go_here
+float32 travel_time

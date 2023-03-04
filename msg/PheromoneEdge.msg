@@ -1,3 +1,3 @@
-int16 from_vertex
-int16 to_vertex
+int32 from_vertex
+int32 to_vertex
 float32 deposit

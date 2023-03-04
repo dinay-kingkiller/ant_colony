@@ -1,4 +1,4 @@
 string name
-int16 from_vertex
-int16 to_vertex
-int16 progress
+int32 from_vertex
+int32 to_vertex
+int32 progress

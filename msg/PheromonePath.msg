@@ -1,2 +1,2 @@
-int16[] tour
+int32[] tour
 float32 deposit
