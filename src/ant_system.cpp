@@ -1,7 +1,5 @@
 // BSD 3-Clause License
 //
-// Copyright (c) 2023, Dinay Kingkiller
-//
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are met:
 //
@@ -27,9 +25,24 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+/// \brief This ROS node tracks pheromones and helps ants choose their path.
+/// 
+/// This node is part of an implementation of the Ant System algorithm using ROS.
+/// M. Dorigo, V. Maniezzo, et A. Colorni, Ant system: optimization by a colony of
+/// cooperating agents, IEEE Transactions on Systems, Man, and Cybernetics--Part
+/// B, volume 26, numéro 1, pages 29-41, 1996.
+/// https://www.cs.unibo.it/babaoglu/courses/cas05-06/tutorials/Ant_Colony_Optimization.pdf
+///
+/// This node interacts with ROS in two ways:
+/// 1. This node subscribes to Pheromone msgs to update the pheromone map.
+/// 2. This node provides a direction service to ant nodes.
+///
+/// When this node is launched it will generate a randomized map for ant travel.
+/// This map will track ant pheromones for the direction service. Every second,
+/// the pheromones will decay according to the EvaporationPower parameter.
+
 #include <cmath>
 #include <ctime>
-#include <map>
 #include <vector>
 
 #include "ros/ros.h"
