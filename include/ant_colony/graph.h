@@ -1,7 +1,5 @@
 // BSD 3-Clause License
 //
-// Copyright (c) 2023, Dinay Kingkiller
-//
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are met:
 //
@@ -30,9 +28,78 @@
 #ifndef ANT_COLONY_GRAPH_H
 #define ANT_COLONY_GRAPH_H
 
+/// \brief Generates a connected, undirected, simple, weighted graph.
+///   For any two vertices in a connected graph, there is a path to connect them.
+///   An undirected graph is one where the weight of an edge does not depend on the direction
+///     graph[i][j] == graph[j][i]
+///   A graph is simple if two edges cannot share the same vertices AND
+///   the graph does not contain loops: graph[i][i] == 0
+///   The weight of the edge i->j is stored in graph[i][j]
+/// std::vector<std::vector<int>>& graph:
+///   The adjacency matrix of the graph. For missing edges: graph[i][j]
+/// int vertex_c:
+///   The size of the graph: how many vertices does it contain?
+///   edge_c (the number of edges) is randomized based on vertex_c
+/// int max_weight:
+///   The max edge weight.
 void GenerateRandomGraph(std::vector<std::vector<int>>& graph, int vertex_c, int max_weight);
+
+/// \brief Generates an undirected, simple, weighted, complete graph.
+///   An undirected graph is one where the weight of an edge does not depend on the direction
+///     graph[i][j] == graph[j][i]
+///   A graph is simple if two edges cannot share the same vertices AND
+///   the graph does not contain loops: graph[i][i] == 0
+///   The weight of the edge i->j is stored in graph[i][j]
+///   A graph is complete if every vertex has an edge to every other vertex
+///     graph[i][j] != 0 for all i, j except if i==j.
+/// std::vector<std::vector<int>>& graph:
+///   The adjacency matrix of the graph.
+/// int vertex_c:
+///   The size of the graph: how many vertices does it contain?
+/// int max_weight:
+///   The max edge weight.
 void GenerateCompleteGraph(std::vector<std::vector<int>>& graph, int vertex_c, int max_weight);
+
+/// \brief Generates a directed, simple, weighted, complete graph.
+///   A directed graph is one where the weight of an edge might depend on direction.
+///   A graph is simple if two edges cannot share the same vertices AND
+///   the graph does not contain loops: graph[i][i] == 0
+///   The weight of the edge i->j is stored in graph[i][j]
+///   A graph is complete if every vertex has an edge to every other vertex
+///     graph[i][j] != 0 for all i, j except if i==j.
+/// std::vector<std::vector<int>>& graph:
+///   The adjacency matrix of the graph.
+/// int vertex_c:
+///   The size of the graph: how many vertices does it contain?
+/// int max_weight:
+///   The max edge weight.
 void GenerateCompleteDigraph(std::vector<std::vector<int>>& graph, int vertex_c, int max_weight);
-void GenerateFlatGraph(std::vector<int>& coord_x, std::vector<int>& coord_y, std::vector<std::vector<int>>& graph, int vertex_c, int size_x, int size_y);
+
+/// \brief Generates an easily plotted complete graph.
+/// std::vector<float>& coord_x / std::vector<float>& coord_y
+///   randomized coordinates of the generated graph
+/// std::vector<std::vector<int>>& graph:
+///   The adjacency matrix of the new graph.
+///   The weight of each edge is the length between two points.
+///   sqrt((x_1-x_2)^2 + (y_1-y_2)^2)
+/// int vertex_c:
+///   The size of the graph: how many vertices does it contain?
+/// float size_x / float size_y:
+///   The dimensions of the map.
+void GenerateFlatGraph(std::vector<int>& coord_x, std::vector<int>& coord_y, std::vector<std::vector<int>>& graph, int vertex_c, float size_x, float size_y);
+
+/// \brief Generates a plottable, incomplete graph.
+/// std::vector<float>& coord_x / std::vector<float>& coord_y
+///   randomized coordinates of the generated graph
+/// std::vector<std::vector<int>>& graph:
+///   The adjacency matrix of the new graph.
+///   The weight of each edge is the length between two points.
+///   sqrt((x_1-x_2)^2 + (y_1-y_2)^2)
+/// int vertex_c:
+///   The size of the graph: how many vertices does it contain?
+///   edge_c (the number of edges) is randomized based on vertex_c
+/// float size_x / float size_y:
+///   The dimensions of the map.
+void GenerateIncompleteFlatGraph(std::vector<float>& coord_x, std::vector<float>& coord_y, std::vector<std::vector<float>>& graph, int vertex_c, float size_x, float size_y);
 
 #endif
