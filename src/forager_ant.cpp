@@ -37,19 +37,19 @@
 
 
 // Important Places
-uint16_t start_vertex = 0;
-uint16_t goal_vertex;
-uint16_t current_vertex = start_vertex;
-uint16_t next_vertex;
-uint16_t travel_time;
+int start_vertex = 0;
+int goal_vertex;
+int current_vertex = start_vertex;
+int next_vertex;
+int travel_time;
 int VertexCount; 
 float RewardPower;
 
 
 // Ant on Tour
-std::vector<uint16_t> tour = {0};
-std::vector<uint16_t> path_length = {0};
-uint16_t tour_length = 0;
+std::vector<int> tour = {0};
+std::vector<int> path_length = {0};
+int tour_length = 0;
 
 int main(int argc, char **argv) {
   // Start talking with ROS.
@@ -84,7 +84,7 @@ int main(int argc, char **argv) {
       location_msg.name = ros::this_node::getName();
       location_msg.from_vertex = current_vertex;
       location_msg.to_vertex = next_vertex;
-      for (uint16_t i = 0; i < travel_time; ++i) {
+      for (int i = 0; i < travel_time; ++i) {
 	location_msg.progress = i;
 	location_pub.publish(location_msg);
 	ant_speed.sleep();
@@ -104,7 +104,7 @@ int main(int argc, char **argv) {
       next_vertex = tour.back();
       tour.pop_back();
       // The ant is traveling.
-      for (uint16_t i = 0; i < travel_time; ++i) {
+      for (int i = 0; i < travel_time; ++i) {
 	location_msg.name = ros::this_node::getName();
 	location_msg.from_vertex = current_vertex;
 	location_msg.to_vertex = next_vertex;
