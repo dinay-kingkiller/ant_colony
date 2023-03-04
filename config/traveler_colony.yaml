@@ -1,9 +1,0 @@
-# Map Parameters
-GraphType: complete_undirected
-VertexCount: 16
-MaxEdgeWeight: 8
-
-DistancePower: 1.0 # Increase to avoid long trips.
-PheromonePower: 0.0 # Increase to trust other ants.
-EvaporationPower: 0.0 # Increase to remove older paths.
-RewardPower: 1.0 # Increase to favor newest paths.
