@@ -50,7 +50,8 @@ find_package(catkin REQUIRED COMPONENTS
 add_message_files(
   FILES
   Location.msg
-  Pheromone.msg
+  PheromoneEdge.msg
+  PheromonePath.msg
   PlotData.msg
 )
 

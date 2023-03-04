@@ -1,7 +1,5 @@
 // BSD 3-Clause License
 //
-// Copyright (c) 2023, Dinay Kingkiller
-//
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are met:
 //
@@ -27,6 +25,7 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+#include <set>
 #include <string>
 #include <vector>
 
@@ -35,27 +34,20 @@
 #include "ant_colony/Location.h"
 #include "ant_colony/Pheromone.h"
 
-
-// Important Places
-int start_vertex = 0;
-int goal_vertex;
-int current_vertex = start_vertex;
+int current_vertex = 0; // Start at the beginning
 int next_vertex;
-int travel_time;
+float travel_time;
+std::set<int> visited = {0}; // Visited vertices
+float tour_length = 0;
 int VertexCount; 
 float RewardPower;
-
-
-// Ant on Tour
-std::vector<int> tour = {0};
-std::vector<int> path_length = {0};
-int tour_length = 0;
 
 int main(int argc, char **argv) {
   // Start talking with ROS.
   ros::init(argc, argv, "Princess"); 
   ros::NodeHandle nh;
   ros::Rate ant_speed(1);
+
   // ROS Communication
   ant_colony::Pheromone pheromone_msg;
   ant_colony::Location location_msg;
@@ -65,11 +57,31 @@ int main(int argc, char **argv) {
   ros::Publisher location_pub = nh.advertise<ant_colony::Location>("location", 1000);
   nh.getParam("VertexCount", VertexCount);
   nh.getParam("RewardPower", RewardPower);
-  goal_vertex = VertexCount - 1;
 
   ros::service::waitForService("directions", 1000000);
   bool exploring = true;
   while (ros::ok()) {
+    // The ant wants to know where to go next.
+    directions_srv.request.from_here = current_vertex;
+    if (not lost_ant.call(directions_srv)) {
+      ROS_ERROR("Could not talk to Directions service.");
+      return 1;
+    }
+    next_vertex = directions_srv.response.go_here;
+    travel_time = directions_srv.response.travel_time;
+
+    // The ant is traveling.
+    location_msg.name = ros::this_node::getName();
+    location_msg.from_vertex = current_vertex;
+    location_msg.to_vertex = next_vertex;
+    location_pub.publish(location_msg);
+    ros::Duration(travel_time).sleep();
+
+    current_vertex = to_vertex
+    visited.insert(current_vertex);
+    if (visited.size() == VertexCount && current_vertex==0) {
+    }
+    
     if (exploring) {
       // The ant wants to know where to go next.
       directions_srv.request.from_here = current_vertex;
