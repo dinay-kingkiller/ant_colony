@@ -56,12 +56,12 @@ float EvaporationPower;
 float PheromonePower;
 float RewardPower;
 
-// distances is an adjacency matrix for finding edges.
-std::vector<std::vector<int>> distances;
+//
+std::vector<float> x_coordinates;
+std::vector<float> y_coordinates;
+std::vector<std::vector<float>> distances; /// adjacency matrix
 std::vector<float> pheromones;
-// desirability is a matrix of intermediate calculations:
-//  desirability[i][j] = 1.0/distance[i][j]**DistancePower.
-std::vector<std::vector<float>> desirability;
+std::vector<std::vector<float>> desirability; /// distances[i][j]**-DistancePower
 
 void SetupPheromones() {
   desirability.resize(VertexCount, std::vector<float>(VertexCount, 0.0));
@@ -164,41 +164,39 @@ bool ChoosePath(ant_colony::Directions::Request &req,
 /// This map will track ant pheromones for the direction service. Every second,
 /// the pheromones will decay according to the EvaporationPower parameter.
 int main(int argc, char **argv) {
+  srand(time(NULL));
+
   // Start up map node.
   ros::init(argc, argv, "map");
   ros::NodeHandle nh;
+  ros::Subscriber scent_path = nh.subscribe("edge_pheromones", 1000, AddEdgePheromones);
+  ros::Subscriber scent_edge = nh.subscribe("path_pheromones", 1000, AddPathPheromones);
+  ros::ServiceServer scent_choice = nh.advertiseService("directions", ChoosePath);
   ros::Rate loop_rate(1);
-  srand(time(NULL));
 
   // Set global parameters.
-  nh.getParam("/VertexCount", VertexCount);
-  nh.getParam("/EdgeCount", EdgeCount);
-  nh.getParam("/DistancePower", DistancePower);
-  nh.getParam("/EvaporationPower", EvaporationPower);
-  nh.getParam("/PheromonePower", PheromonePower);
+  nh.getParam("VertexCount", VertexCount);
+  nh.getParam("size_x", size_x);
+  nh.getParam("size_y", size_y);
+  nh.getParam("DistancePower", DistancePower);
+  nh.getParam("EvaporationPower", EvaporationPower);
+  nh.getParam("PheromonePower", PheromonePower);
 
-  // Setup Graph
+  // Setup Graph.
   std::string GraphType;
-  nh.getParam("/GraphType", GraphType);
-  if (GraphType == "Incomplete") {
-    nh.getParam("/MaxEdgeWeight", MaxEdgeWeight);
-    GenerateRandomGraph(distances, VertexCount, MaxEdgeWeight);
+  nh.getParam("GraphType", GraphType);
+  if (GraphType == "Complete") {
+    GenCompleteGraph(x_coordinates, y_coordinates, distances, VertexCount, size_x, size_y);
   }
-  else if (GraphType == "Flat") {
-    nh.getParam("ant_colony/size_x", size_x);
-    nh.getParam("ant_colony/size_y", size_y);
-  }  
-  SetupMap();
+  else if (GraphType == "Incomplete") {
+    GenIncompleteGraph(x_coordinates, y_coordinates, distances, VertexCount, size_x, size_y);
+  }
+  else {ROS_ERROR("GraphType not set.");}
 
-  ros::Subscriber scent_path = nh.subscribe("edge_pheromones", 1000, Add2Edge);
-  ros::Subscriber scent_edge = nh.subscribe("path_pheromones", 1000, Add2Path);
-  ros::ServiceServer scent_choice = nh.advertiseService("directions", ChoosePath);
-  ros::spin();
+  // Track Pheromones.
+  SetupPheromones();
   while (ros::ok()) {
     UpdatePheromones();
-
-
-    
     loop_rate.sleep();
   }
   return 0;

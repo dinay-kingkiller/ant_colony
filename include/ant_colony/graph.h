@@ -86,7 +86,7 @@ void GenerateCompleteDigraph(std::vector<std::vector<int>>& graph, int vertex_c,
 ///   The size of the graph: how many vertices does it contain?
 /// float size_x / float size_y:
 ///   The dimensions of the map.
-void GenerateFlatGraph(std::vector<int>& coord_x, std::vector<int>& coord_y, std::vector<std::vector<int>>& graph, int vertex_c, float size_x, float size_y);
+void GenCompleteGraph(std::vector<float>& coord_x, std::vector<float>& coord_y, std::vector<std::vector<float>>& graph, int vertex_c, float size_x, float size_y);
 
 /// \brief Generates a plottable, incomplete graph.
 /// std::vector<float>& coord_x / std::vector<float>& coord_y
@@ -100,6 +100,6 @@ void GenerateFlatGraph(std::vector<int>& coord_x, std::vector<int>& coord_y, std
 ///   edge_c (the number of edges) is randomized based on vertex_c
 /// float size_x / float size_y:
 ///   The dimensions of the map.
-void GenerateIncompleteFlatGraph(std::vector<float>& coord_x, std::vector<float>& coord_y, std::vector<std::vector<float>>& graph, int vertex_c, float size_x, float size_y);
+void GenIncompleteGraph(std::vector<float>& coord_x, std::vector<float>& coord_y, std::vector<std::vector<float>>& graph, int vertex_c, float size_x, float size_y);
 
 #endif

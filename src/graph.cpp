@@ -95,7 +95,7 @@ void GenerateCompleteDigraph(std::vector<std::vector<int>>& graph, int vertex_c,
   }
 }
 
-void GenerateFlatGraph(std::vector<float>& coord_x, std::vector<float>& coord_y, std::vector<std::vector<float>>& graph, int vertex_c, float size_x, float size_y) {
+void GenCompleteGraph(std::vector<float>& coord_x, std::vector<float>& coord_y, std::vector<std::vector<float>>& graph, int vertex_c, float size_x, float size_y) {
   graph.resize(vertex_c, std::vector<float>(vertex_c, 0.0));
   srand(time(NULL));
   coord_x.resize(vertex_c, 0.0);
@@ -114,5 +114,5 @@ void GenerateFlatGraph(std::vector<float>& coord_x, std::vector<float>& coord_y,
   }
 }
 
-void GenerateIncompleteFlatGraph(std::vector<float>& coord_x, std::vector<float>& coord_y, std::vector<std::vector<float>>& graph, int vertex_c, float size_x, float size_y) {
+void GenIncompleteGraph(std::vector<float>& coord_x, std::vector<float>& coord_y, std::vector<std::vector<float>>& graph, int vertex_c, float size_x, float size_y) {
 }
