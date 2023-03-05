@@ -61,9 +61,9 @@ int main(int argc, char **argv) {
 
   ros::service::waitForService("directions", 1000000);
   
-  bool exploring = true;
   while (ros::ok()) {
     // The ant wants to know where to go next.
+    directions_srv.request.skip_here = tour;
     directions_srv.request.from_here = current_vertex;
     if (not lost_ant.call(directions_srv)) {
       ROS_ERROR("Could not talk to Directions service.");
@@ -93,6 +93,13 @@ int main(int argc, char **argv) {
       pheromone_msg.tour = tour;
       pheromone_msg.deposit = RewardPower / tour_length;
       smelly_ant.publish(pheromone_msg);
+
+      // Reset trail
+      tour_length = 0;
+      tour.clear();
+      tour.push_back(0);
+      visited.clear();
+      visited.insert(0);
     }    
   }
   return 0;

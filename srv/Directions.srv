@@ -1,4 +1,5 @@
 int32 from_here
+int32[] skip_here
 ---
 int32 go_here
 float32 travel_time

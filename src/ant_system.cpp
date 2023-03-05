@@ -93,10 +93,10 @@ void AddEdgePheromones(const ant_colony::PheromoneEdge::ConstPtr& msg) {
     else if (pheromones[i] > max) {
       ROS_WARN_STREAM("Possible max value"<<pheromones[i]/max);
       ROS_WARN_STREAM("i: "<<i/VertexCount<<" j: "<<i%VertexCount);
-      pheromones[i] = 1.0;
+      // pheromones[i] = 1.0;
     }
     else {
-      pheromones[i] = pheromones[i] / max;
+      // pheromones[i] = pheromones[i] / max;
     }
   }
 }
@@ -152,7 +152,6 @@ void UpdatePheromones() {
 
 bool ChoosePath(ant_colony::Directions::Request &req,
 		 ant_colony::Directions::Response &res) {
-  ROS_INFO_STREAM("Inside Choice");
   int start = req.from_here;
   double attraction;
   double attraction_ttl = 0.0;
@@ -160,8 +159,19 @@ bool ChoosePath(ant_colony::Directions::Request &req,
   double sum;
   double choice = rand() * 1.0 / RAND_MAX;
 
+  if (req.skip_here.size() == VertexCount) {
+    // Go home if all of the vertices have been visited.
+    res.go_here = 0;
+    res.travel_time = distances[start][0];
+    return true;
+  }
+
   // Generate attraction and desirability sums.
   for (int i = 0; i < VertexCount; ++i) {
+    if (std::find(req.skip_here.begin(), req.skip_here.end(), i)!=req.skip_here.end()){
+      // Skip to the ones not in req.skip_here
+      continue;
+    }
     attraction = std::pow(pheromones[start*VertexCount + i], PheromonePower)
       * desirability[start][i];
     attraction_ttl += attraction;
@@ -171,6 +181,10 @@ bool ChoosePath(ant_colony::Directions::Request &req,
   // Choose based on attraction
   sum = 0.0;
   for (int i = 0; i < VertexCount; ++i) {
+    if (std::find(req.skip_here.begin(), req.skip_here.end(), i)!=req.skip_here.end()) {
+      // Skip the ones in req.skip_here
+      continue;
+    }
     attraction = std::pow(pheromones[start*VertexCount + i], PheromonePower)
       * desirability[start][i];
     if (attraction / attraction_ttl < 0.001) {
@@ -188,6 +202,10 @@ bool ChoosePath(ant_colony::Directions::Request &req,
   ROS_WARN("Not enough pheromones. Using desirability.");
   sum = 0.0;
   for (int i = 0; i < VertexCount; ++i) {
+    if (std::find(req.skip_here.begin(), req.skip_here.end(), i)!=req.skip_here.end()) {
+      // Skip the ones in req.skip_here
+      continue;
+    }
     if (desirability[start][i] / desirability_ttl < 0.001) {
       continue;
     }
@@ -201,6 +219,7 @@ bool ChoosePath(ant_colony::Directions::Request &req,
   ROS_ERROR("Could not find best path.");
   return false;
 }
+
 
 /// When this node is launched it will generate a randomized map for ant travel.
 /// This map will track ant pheromones for the direction service. Every second,
@@ -239,7 +258,7 @@ int main(int argc, char **argv) {
   SetupPheromones();
   while (ros::ok()) {
     UpdatePheromones();
-    ros::spinOnce();
+    ros::spin();
     loop_rate.sleep();
   }
   return 0;
