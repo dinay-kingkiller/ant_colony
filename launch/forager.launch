@@ -10,9 +10,52 @@
       />
   <node
       pkg="ant_colony"
-      type="forager_ant"
-      name="Princess"
-      required="true"
-      output="screen"
+      type="traveler_ant"
+      name="Brynda"
+      />
+  <node
+      pkg="ant_colony"
+      type="traveler_ant"
+      name="Cora"
+      />
+  <node
+      pkg="ant_colony"
+      type="traveler_ant"
+      name="Enya"
+      />
+  <node
+      pkg="ant_colony"
+      type="traveler_ant"
+      name="Fiamma"
+      />
+  <node
+      pkg="ant_colony"
+      type="traveler_ant"
+      name="Hespera"
+      />
+  <node
+      pkg="ant_colony"
+      type="traveler_ant"
+      name="Inola"
+      />
+  <node
+      pkg="ant_colony"
+      type="traveler_ant"
+      name="Kierra"
+      />
+  <node
+      pkg="ant_colony"
+      type="traveler_ant"
+      name="Leyla"
+      />
+  <node
+      pkg="ant_colony"
+      type="traveler_ant"
+      name="Mia"
+      />
+  <node
+      pkg="ant_colony"
+      type="traveler_ant"
+      name="Vesta"
       />
 </launch>
