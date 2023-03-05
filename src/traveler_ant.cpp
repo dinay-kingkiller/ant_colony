@@ -75,17 +75,20 @@ int main(int argc, char **argv) {
     location_msg.name = ros::this_node::getName();
     location_msg.from_vertex = current_vertex;
     location_msg.to_vertex = next_vertex;
+    ROS_DEBUG_STREAM(location_msg.name<<" is Traveling.");
+    ROS_DEBUG_STREAM("From "<<location_msg.from_vertex);
+    ROS_DEBUG_STREAM("To "<<location_msg.to_vertex);
     location_pub.publish(location_msg);
     ros::Duration(travel_time).sleep();
 
     // Update the ant tour.
-    current_vertex = next_vertex;
-    tour.push_back(current_vertex);
-    visited.insert(current_vertex);
+    tour.push_back(next_vertex);
+    visited.insert(next_vertex);
     tour_length += travel_time;
+    current_vertex = next_vertex;
     
     if (visited.size() == VertexCount && current_vertex==0) {
-      // The ant deposits its pheromones.
+      // The ant marks it trail.
       pheromone_msg.tour = tour;
       pheromone_msg.deposit = RewardPower / tour_length; 
     }

@@ -1,10 +1,11 @@
 <?xml version="1.0"?>
 <launch>
-  <rosparam file="$(find ant_colony)/config/forager_colony.yaml"/>
+  <rosparam file="$(find ant_colony)/config/param.yaml"/>
+  <rosparam> GraphType: Incomplete </rosparam>
   <node
       pkg="ant_colony"
       type="ant_system"
-      name="forager_colony"
+      name="colony"
       required="true"
       />
   <node

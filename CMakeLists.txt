@@ -9,6 +9,7 @@ project(ant_colony)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
   roscpp
+  roslaunch
   rospy
   message_generation
 )
@@ -219,6 +220,9 @@ install(DIRECTORY include/${PROJECT_NAME}/
 #############
 ## Testing ##
 #############
+
+## Checks for common roslaunch errors in launch folder
+roslaunch_add_file_check(launch)
 
 ## Add gtest based cpp test target and link libraries
 # catkin_add_gtest(${PROJECT_NAME}-test test/test_ant_colony.cpp)

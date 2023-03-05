@@ -25,6 +25,7 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+#include <set>
 #include <string>
 #include <vector>
 
@@ -33,24 +34,27 @@
 #include "ant_colony/Location.h"
 #include "ant_colony/PheromoneEdge.h"
 
-// Important Places
-int current_vertex = 0;
-int goal_vertex;
-int next_vertex;
-int travel_time;
-int VertexCount; 
-float RewardPower;
-
-// Ant on Tour
-std::vector<int> tour = {0};
-std::vector<int> path_length = {0};
-int tour_length = 0;
-
 int main(int argc, char **argv) {
+  // Important Places
+  int current_vertex = 0;
+  int goal_vertex;
+  int next_vertex;
+  int travel_time;
+  int VertexCount; 
+  float RewardPower;
+
+  // Ant on Tour
+  std::vector<int> tour = {0};
+  std::vector<int> path_length = {0};
+  std::set<std::set<int>> edges;
+  std::set<int> edge;
+  int tour_length = 0;
+
   // Start talking with ROS.
   ros::init(argc, argv, "Princess"); 
   ros::NodeHandle nh;
   ros::Rate ant_speed(1);
+  
   // ROS Communication
   ant_colony::PheromoneEdge pheromone_msg;
   ant_colony::Location location_msg;
@@ -79,43 +83,48 @@ int main(int argc, char **argv) {
       location_msg.name = ros::this_node::getName();
       location_msg.from_vertex = current_vertex;
       location_msg.to_vertex = next_vertex;
-      for (int i = 0; i < travel_time; ++i) {
-	location_msg.progress = i;
-	location_pub.publish(location_msg);
-	ant_speed.sleep();
-      }
-      path_length.push_back(travel_time);
+      location_pub.publish(location_msg);
+      ros::Duration(travel_time).sleep();
+
+      // Update the ant tour.
       tour.push_back(next_vertex);
+      path_length.push_back(travel_time);
       tour_length += travel_time;
       current_vertex = next_vertex;
+      
       if (current_vertex == goal_vertex) {
 	exploring = false;
       }
     }
     else {
-      // TODO do not re-drop pheromones.
-      // The ant is spreading the good news!
+      // The ant is returning.
       travel_time = path_length.back();
       path_length.pop_back();
       next_vertex = tour.back();
       tour.pop_back();
+      edge = {current_vertex, next_vertex};
+
       // The ant is traveling.
-      for (int i = 0; i < travel_time; ++i) {
-	location_msg.name = ros::this_node::getName();
-	location_msg.from_vertex = current_vertex;
-	location_msg.to_vertex = next_vertex;
-	location_msg.progress = i;
-	location_pub.publish(location_msg);
-	ant_speed.sleep();
+      location_msg.name = ros::this_node::getName();
+      location_msg.from_vertex = current_vertex;
+      location_msg.to_vertex = next_vertex;
+      location_pub.publish(location_msg);
+      ros::Duration(travel_time).sleep();
+
+      if (edges.find(edge) != edges.end()) {
+	// The ant is marking its trail.
+	pheromone_msg.from_vertex = current_vertex;
+	pheromone_msg.to_vertex = next_vertex;
+	pheromone_msg.deposit = RewardPower / tour_length;
+	pheromone_pub.publish(pheromone_msg);
+	edges.insert(edge);
       }
-      pheromone_msg.from_vertex = current_vertex;
-      pheromone_msg.to_vertex = next_vertex;
-      pheromone_msg.deposit = RewardPower / tour_length;
-      pheromone_pub.publish(pheromone_msg);
+      
       if (tour.size() == 0) {
 	exploring = true;
 	tour.clear();
 	path_length.clear();
+	edges.clear();
 	tour_length = 0;
       }
     }
