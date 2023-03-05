@@ -54,12 +54,13 @@ int main(int argc, char **argv) {
   ant_colony::Location location_msg;
   ant_colony::Directions directions_srv;
   ros::ServiceClient lost_ant = nh.serviceClient<ant_colony::Directions>("directions");
-  ros::Publisher pheromone_pub = nh.advertise<ant_colony::PheromonePath>("path_pheromones", 1000);
-  ros::Publisher location_pub = nh.advertise<ant_colony::Location>("location", 1000);
+  ros::Publisher smelly_ant = nh.advertise<ant_colony::PheromonePath>("path_pheromones", 1000);
+  ros::Publisher loud_ant = nh.advertise<ant_colony::Location>("location", 1000);
   nh.getParam("VertexCount", VertexCount);
   nh.getParam("RewardPower", RewardPower);
 
   ros::service::waitForService("directions", 1000000);
+  
   bool exploring = true;
   while (ros::ok()) {
     // The ant wants to know where to go next.
@@ -75,10 +76,10 @@ int main(int argc, char **argv) {
     location_msg.name = ros::this_node::getName();
     location_msg.from_vertex = current_vertex;
     location_msg.to_vertex = next_vertex;
-    ROS_DEBUG_STREAM(location_msg.name<<" is Traveling.");
-    ROS_DEBUG_STREAM("From "<<location_msg.from_vertex);
-    ROS_DEBUG_STREAM("To "<<location_msg.to_vertex);
-    location_pub.publish(location_msg);
+    ROS_INFO_STREAM(location_msg.name<<" is Traveling.");
+    ROS_INFO_STREAM("From "<<location_msg.from_vertex);
+    ROS_INFO_STREAM("To "<<location_msg.to_vertex);
+    loud_ant.publish(location_msg);
     ros::Duration(travel_time).sleep();
 
     // Update the ant tour.
@@ -90,9 +91,9 @@ int main(int argc, char **argv) {
     if (visited.size() == VertexCount && current_vertex==0) {
       // The ant marks it trail.
       pheromone_msg.tour = tour;
-      pheromone_msg.deposit = RewardPower / tour_length; 
-    }
-    
+      pheromone_msg.deposit = RewardPower / tour_length;
+      smelly_ant.publish(pheromone_msg);
+    }    
   }
   return 0;
 }

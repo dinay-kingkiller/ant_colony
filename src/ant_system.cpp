@@ -90,7 +90,7 @@ void AddEdgePheromones(const ant_colony::PheromoneEdge::ConstPtr& msg) {
     if (pheromones[i] < .001) {
       pheromones[i] = 0.0;
     }
-    else if (pheromones[i] + .001 > max) {
+    else if (pheromones[i] > max) {
       ROS_WARN_STREAM("Possible max value"<<pheromones[i]/max);
       ROS_WARN_STREAM("i: "<<i/VertexCount<<" j: "<<i%VertexCount);
       pheromones[i] = 1.0;
@@ -152,6 +152,7 @@ void UpdatePheromones() {
 
 bool ChoosePath(ant_colony::Directions::Request &req,
 		 ant_colony::Directions::Response &res) {
+  ROS_INFO_STREAM("Inside Choice");
   int start = req.from_here;
   double attraction;
   double attraction_ttl = 0.0;
@@ -166,7 +167,7 @@ bool ChoosePath(ant_colony::Directions::Request &req,
     attraction_ttl += attraction;
     desirability_ttl += desirability[start][i];
   }
-  
+
   // Choose based on attraction
   sum = 0.0;
   for (int i = 0; i < VertexCount; ++i) {
@@ -238,6 +239,7 @@ int main(int argc, char **argv) {
   SetupPheromones();
   while (ros::ok()) {
     UpdatePheromones();
+    ros::spinOnce();
     loop_rate.sleep();
   }
   return 0;
