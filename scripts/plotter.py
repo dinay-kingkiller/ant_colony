@@ -43,4 +43,3 @@ if __name__ == "__main__":
     rospy.init_node("plotter")
     rospy.Subscriber("plot_data", PlotData, update)
     rospy.spin()
-    plotter()

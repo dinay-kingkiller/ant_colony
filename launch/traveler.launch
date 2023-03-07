@@ -7,55 +7,71 @@
       type="ant_system"
       name="colony"
       required="true"
+      output="screen"
+      />
+  <node
+      pkg="ant_colony"
+      type="plotter.py"
+      name="plotter"
       />
   <node
       pkg="ant_colony"
       type="traveler_ant"
-      name="Brynda"
+      name="Aurora"
+      required="true"
       />
   <node
       pkg="ant_colony"
       type="traveler_ant"
       name="Cora"
+      required="true"
       />
   <node
       pkg="ant_colony"
       type="traveler_ant"
       name="Enya"
+      required="true"
       />
   <node
       pkg="ant_colony"
       type="traveler_ant"
       name="Fiamma"
+      required="true"
       />
   <node
       pkg="ant_colony"
       type="traveler_ant"
       name="Hespera"
+      required="true"
       />
   <node
       pkg="ant_colony"
       type="traveler_ant"
       name="Inola"
+      required="true"
       />
   <node
       pkg="ant_colony"
       type="traveler_ant"
       name="Kierra"
+      required="true"
       />
   <node
       pkg="ant_colony"
       type="traveler_ant"
       name="Leyla"
+      required="true"
       />
   <node
       pkg="ant_colony"
       type="traveler_ant"
       name="Mia"
+      required="true"
       />
   <node
       pkg="ant_colony"
       type="traveler_ant"
       name="Vesta"
+      required="true"
       />
 </launch>

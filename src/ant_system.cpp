@@ -64,6 +64,9 @@ std::vector<std::vector<float>> distances; /// adjacency matrix
 std::vector<float> pheromones;
 std::vector<std::vector<float>> desirability; /// distances[i][j]**-DistancePower
 
+/// \brief This function places pheromones along all valid edges.
+///
+/// This is run once at the start to put pheromones in an initial state.
 void SetupPheromones() {
   desirability.resize(VertexCount, std::vector<float>(VertexCount, 0.0));
   pheromones.resize(VertexCount*VertexCount, 0.0);
@@ -77,12 +80,15 @@ void SetupPheromones() {
   }
 }
 
+/// \brief This function adds pheromones along one edge.
+///
+///
 void AddEdgePheromones(const ant_colony::PheromoneEdge::ConstPtr& msg) {
   float max;
   int pheromone_i = msg->from_vertex * VertexCount + msg->to_vertex;
   int pheromone_j = msg->to_vertex * VertexCount + msg->from_vertex;
   pheromones[pheromone_i] += msg->deposit;
-  pheromones[pheromone_j] += msg->deposit;
+  // pheromones[pheromone_j] += msg->deposit;
   max = pheromones[pheromone_i];
   // TODO: Verify pheromones don't go up if not deposited.
   // i.e. new deposits should always be the max value.
@@ -91,16 +97,17 @@ void AddEdgePheromones(const ant_colony::PheromoneEdge::ConstPtr& msg) {
       pheromones[i] = 0.0;
     }
     else if (pheromones[i] > max) {
-      ROS_WARN_STREAM("Possible max value"<<pheromones[i]/max);
+      ROS_WARN_STREAM("Possible max value: "<<pheromones[i]/max);
       ROS_WARN_STREAM("i: "<<i/VertexCount<<" j: "<<i%VertexCount);
-      // pheromones[i] = 1.0;
+      pheromones[i] = 1.0;
     }
     else {
-      // pheromones[i] = pheromones[i] / max;
+      pheromones[i] = pheromones[i] / max;
     }
   }
 }
 
+/// \brief
 void AddPathPheromones(const ant_colony::PheromonePath::ConstPtr& msg) {
   float max;
   int from_vertex;
@@ -144,22 +151,27 @@ void AddPathPheromones(const ant_colony::PheromonePath::ConstPtr& msg) {
   }
 }
 
+/// \brief Evaporate pheromones.
 void UpdatePheromones() {
   for (int i = 0; i < VertexCount*VertexCount; ++i) {
     pheromones[i] = (1-EvaporationPower) * pheromones[i];
   }
 }
 
+
+/// \brief ROS Service provided to ants. They ask where they should go 
 bool ChoosePath(ant_colony::Directions::Request &req,
 		 ant_colony::Directions::Response &res) {
   int start = req.from_here;
+  std::vector<int> skip_vertices = req.skip_here;
   double attraction;
   double attraction_ttl = 0.0;
   double desirability_ttl = 0.0;
   double sum;
   double choice = rand() * 1.0 / RAND_MAX;
+  bool found;
 
-  if (req.skip_here.size() == VertexCount) {
+  if (skip_vertices.size() == VertexCount) {
     // Go home if all of the vertices have been visited.
     res.go_here = 0;
     res.travel_time = distances[start][0];
@@ -167,22 +179,36 @@ bool ChoosePath(ant_colony::Directions::Request &req,
   }
 
   // Generate attraction and desirability sums.
-  for (int i = 0; i < VertexCount; ++i) {
-    if (std::find(req.skip_here.begin(), req.skip_here.end(), i)!=req.skip_here.end()){
-      // Skip to the ones not in req.skip_here
-      continue;
+  for (int i = 0; i < VertexCount; ++i){ 
+    found = false;
+    for (int j: skip_vertices) {
+      if (i==j) {
+	found = true;
+	break;
+      }
     }
-    attraction = std::pow(pheromones[start*VertexCount + i], PheromonePower)
-      * desirability[start][i];
-    attraction_ttl += attraction;
-    desirability_ttl += desirability[start][i];
+    if (!found) {
+      attraction = std::pow(pheromones[start*VertexCount + i], PheromonePower)
+	* desirability[start][i];
+      attraction_ttl += attraction;
+      desirability_ttl += desirability[start][i];
+    }
   }
 
   // Choose based on attraction
+  ROS_INFO_STREAM("Attraction Sum: "<<attraction_ttl);
   sum = 0.0;
   for (int i = 0; i < VertexCount; ++i) {
-    if (std::find(req.skip_here.begin(), req.skip_here.end(), i)!=req.skip_here.end()) {
-      // Skip the ones in req.skip_here
+    if (attraction_ttl < 0.001) {break;}
+    found = false;
+    for (int j: skip_vertices) {
+      if (i==j) {
+	found = true;
+	break;
+      }
+    }
+    if (found) {
+      // Skip if vertex is in skip_vertices;
       continue;
     }
     attraction = std::pow(pheromones[start*VertexCount + i], PheromonePower)
@@ -199,11 +225,20 @@ bool ChoosePath(ant_colony::Directions::Request &req,
   }
 
   // Use desirability if there is only faint pheromones left.
+  ROS_INFO_STREAM("Desirability Sum: "<<desirability_ttl);
   ROS_WARN("Not enough pheromones. Using desirability.");
   sum = 0.0;
   for (int i = 0; i < VertexCount; ++i) {
-    if (std::find(req.skip_here.begin(), req.skip_here.end(), i)!=req.skip_here.end()) {
-      // Skip the ones in req.skip_here
+    if (desirability_ttl < 0.001) {break;}
+    found = false;
+    for (int j: skip_vertices) {
+      if (i==j) {
+	found = true;
+	break;
+      }
+    }
+    if (found) {
+      // Skip if vertex is in skip_vertices;
       continue;
     }
     if (desirability[start][i] / desirability_ttl < 0.001) {
@@ -215,6 +250,24 @@ bool ChoosePath(ant_colony::Directions::Request &req,
       res.travel_time = distances[start][i];
       return true;
     }
+  }
+
+  // Dump info if no best path.
+  for (int i = 0; i < VertexCount; ++i) {
+    found = false;
+    for (int j: skip_vertices) {
+      if (i==j) {
+	found = true;
+	break;
+      }
+    }
+    ROS_INFO_STREAM("from_vertex: "<<start
+		    <<", to_vertex: "<<i
+		    <<", Skipped: "<<found
+		    <<", attraction: "<<pheromones[start*VertexCount + i]
+		    <<", desirability: "<<desirability[start][i]);
+    ROS_INFO_STREAM("From: "<<x_coordinates[start]<<", "<<y_coordinates[start]
+		    <<"; To: "<<x_coordinates[i]<<", "<<y_coordinates[i]);
   }
   ROS_ERROR("Could not find best path.");
   return false;

@@ -28,53 +28,6 @@
 #ifndef ANT_COLONY_GRAPH_H
 #define ANT_COLONY_GRAPH_H
 
-/// \brief Generates a connected, undirected, simple, weighted graph.
-///   For any two vertices in a connected graph, there is a path to connect them.
-///   An undirected graph is one where the weight of an edge does not depend on the direction
-///     graph[i][j] == graph[j][i]
-///   A graph is simple if two edges cannot share the same vertices AND
-///   the graph does not contain loops: graph[i][i] == 0
-///   The weight of the edge i->j is stored in graph[i][j]
-/// std::vector<std::vector<int>>& graph:
-///   The adjacency matrix of the graph. For missing edges: graph[i][j]
-/// int vertex_c:
-///   The size of the graph: how many vertices does it contain?
-///   edge_c (the number of edges) is randomized based on vertex_c
-/// int max_weight:
-///   The max edge weight.
-void GenerateRandomGraph(std::vector<std::vector<int>>& graph, int vertex_c, int max_weight);
-
-/// \brief Generates an undirected, simple, weighted, complete graph.
-///   An undirected graph is one where the weight of an edge does not depend on the direction
-///     graph[i][j] == graph[j][i]
-///   A graph is simple if two edges cannot share the same vertices AND
-///   the graph does not contain loops: graph[i][i] == 0
-///   The weight of the edge i->j is stored in graph[i][j]
-///   A graph is complete if every vertex has an edge to every other vertex
-///     graph[i][j] != 0 for all i, j except if i==j.
-/// std::vector<std::vector<int>>& graph:
-///   The adjacency matrix of the graph.
-/// int vertex_c:
-///   The size of the graph: how many vertices does it contain?
-/// int max_weight:
-///   The max edge weight.
-void GenerateCompleteGraph(std::vector<std::vector<int>>& graph, int vertex_c, int max_weight);
-
-/// \brief Generates a directed, simple, weighted, complete graph.
-///   A directed graph is one where the weight of an edge might depend on direction.
-///   A graph is simple if two edges cannot share the same vertices AND
-///   the graph does not contain loops: graph[i][i] == 0
-///   The weight of the edge i->j is stored in graph[i][j]
-///   A graph is complete if every vertex has an edge to every other vertex
-///     graph[i][j] != 0 for all i, j except if i==j.
-/// std::vector<std::vector<int>>& graph:
-///   The adjacency matrix of the graph.
-/// int vertex_c:
-///   The size of the graph: how many vertices does it contain?
-/// int max_weight:
-///   The max edge weight.
-void GenerateCompleteDigraph(std::vector<std::vector<int>>& graph, int vertex_c, int max_weight);
-
 /// \brief Generates an easily plotted complete graph.
 /// std::vector<float>& coord_x / std::vector<float>& coord_y
 ///   randomized coordinates of the generated graph
