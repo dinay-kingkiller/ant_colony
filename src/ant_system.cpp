@@ -92,19 +92,19 @@ void AddEdgePheromones(const ant_colony::PheromoneEdge::ConstPtr& msg) {
   max = pheromones[pheromone_i];
   // TODO: Verify pheromones don't go up if not deposited.
   // i.e. new deposits should always be the max value.
+  /*
   for (int i = 0; i < VertexCount*VertexCount; ++i) {
     if (pheromones[i] < .001) {
       pheromones[i] = 0.0;
     }
     else if (pheromones[i] > max) {
-      ROS_WARN_STREAM("Possible max value: "<<pheromones[i]/max);
-      ROS_WARN_STREAM("i: "<<i/VertexCount<<" j: "<<i%VertexCount);
       pheromones[i] = 1.0;
     }
     else {
       pheromones[i] = pheromones[i] / max;
     }
   }
+  */
 }
 
 /// \brief
@@ -136,19 +136,19 @@ void AddPathPheromones(const ant_colony::PheromonePath::ConstPtr& msg) {
   // Normalize pheromones.
   // TODO: Verify pheromones don't go up if not deposited.
   // i.e. new deposits should always be the max value.
+  /*
   for (int i = 0; i < VertexCount*VertexCount; ++i) {
     if (pheromones[i] < .001) {
       pheromones[i] = 0.0;
     }
     else if (pheromones[i] + .001 > max) {
-      ROS_WARN_STREAM("Possible max value"<<pheromones[i]/max);
-      ROS_WARN_STREAM("i: "<<i/VertexCount<<" j: "<<i%VertexCount);
       pheromones[i] = 1.0;
     }
     else {
       pheromones[i] = pheromones[i] / max;
     }
   }
+  */
 }
 
 /// \brief Evaporate pheromones.
@@ -196,7 +196,6 @@ bool ChoosePath(ant_colony::Directions::Request &req,
   }
 
   // Choose based on attraction
-  ROS_INFO_STREAM("Attraction Sum: "<<attraction_ttl);
   sum = 0.0;
   for (int i = 0; i < VertexCount; ++i) {
     if (attraction_ttl < 0.001) {break;}
@@ -225,8 +224,22 @@ bool ChoosePath(ant_colony::Directions::Request &req,
   }
 
   // Use desirability if there is only faint pheromones left.
-  ROS_INFO_STREAM("Desirability Sum: "<<desirability_ttl);
   ROS_WARN("Not enough pheromones. Using desirability.");
+  for (int i = 0; i < VertexCount; ++i) {
+    found = false;
+    for (int j: skip_vertices) {
+      if (i==j) {
+	found = true;
+	break;
+      }
+    }
+    ROS_INFO_STREAM("from_vertex: "<<start
+		    <<", to_vertex: "<<i
+		    <<", Skipped: "<<found
+		    <<", Distance: "<<distances[start][i]
+		    <<", pheromones: "<<pheromones[start*VertexCount + i]
+		    <<", desirability: "<<desirability[start][i]);
+  }
   sum = 0.0;
   for (int i = 0; i < VertexCount; ++i) {
     if (desirability_ttl < 0.001) {break;}
@@ -264,6 +277,8 @@ bool ChoosePath(ant_colony::Directions::Request &req,
     ROS_INFO_STREAM("from_vertex: "<<start
 		    <<", to_vertex: "<<i
 		    <<", Skipped: "<<found
+		    <<", Distance: "<<distances[start][i]
+		    <<", Opp: "<<distances[i][start]
 		    <<", attraction: "<<pheromones[start*VertexCount + i]
 		    <<", desirability: "<<desirability[start][i]);
     ROS_INFO_STREAM("From: "<<x_coordinates[start]<<", "<<y_coordinates[start]

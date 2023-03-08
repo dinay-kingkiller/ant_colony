@@ -35,8 +35,8 @@ void GenCompleteGraph(std::vector<float>& coord_x, std::vector<float>& coord_y, 
   srand(time(NULL));
   coord_x.resize(vertex_c, 0.0);
   coord_y.resize(vertex_c, 0.0);
-  int diff_x;
-  int diff_y;
+  float diff_x;
+  float diff_y;
   for (int i = 0; i < vertex_c; ++i) {
     coord_x[i] = rand() * size_x / RAND_MAX;
     coord_y[i] = rand() * size_y / RAND_MAX;

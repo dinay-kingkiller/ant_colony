@@ -18,60 +18,115 @@
       pkg="ant_colony"
       type="traveler_ant"
       name="Aurora"
-      required="true"
+      />
+  <node
+      pkg="ant_colony"
+      type="traveler_ant"
+      name="Brontes"
       />
   <node
       pkg="ant_colony"
       type="traveler_ant"
       name="Cora"
-      required="true"
+      />
+  <node
+      pkg="ant_colony"
+      type="traveler_ant"
+      name="Dahlia"
       />
   <node
       pkg="ant_colony"
       type="traveler_ant"
       name="Enya"
-      required="true"
       />
   <node
       pkg="ant_colony"
       type="traveler_ant"
       name="Fiamma"
-      required="true"
+      />
+  <node
+      pkg="ant_colony"
+      type="traveler_ant"
+      name="Gloria"
       />
   <node
       pkg="ant_colony"
       type="traveler_ant"
       name="Hespera"
-      required="true"
       />
   <node
       pkg="ant_colony"
       type="traveler_ant"
       name="Inola"
-      required="true"
+      />
+  <node
+      pkg="ant_colony"
+      type="traveler_ant"
+      name="Jade"
       />
   <node
       pkg="ant_colony"
       type="traveler_ant"
       name="Kierra"
-      required="true"
       />
   <node
       pkg="ant_colony"
       type="traveler_ant"
       name="Leyla"
-      required="true"
       />
   <node
       pkg="ant_colony"
       type="traveler_ant"
-      name="Mia"
-      required="true"
+      name="Maya"
+      />
+  <node
+      pkg="ant_colony"
+      type="traveler_ant"
+      name="Naomi"
+      />
+  <node
+      pkg="ant_colony"
+      type="traveler_ant"
+      name="Petra"
+      />
+  <node
+      pkg="ant_colony"
+      type="traveler_ant"
+      name="Qira"
+      />
+  <node
+      pkg="ant_colony"
+      type="traveler_ant"
+      name="Riley"
+      />
+  <node
+      pkg="ant_colony"
+      type="traveler_ant"
+      name="Sierra"
+      />
+  <node
+      pkg="ant_colony"
+      type="traveler_ant"
+      name="Tyche"
       />
   <node
       pkg="ant_colony"
       type="traveler_ant"
       name="Vesta"
-      required="true"
+      />
+  <node
+      pkg="ant_colony"
+      type="traveler_ant"
+      name="Willow"
+      />
+  <node
+      pkg="ant_colony"
+      type="traveler_ant"
+      name="Yara"
+      />
+  <node
+      pkg="ant_colony"
+      type="traveler_ant"
+      name="Zoe"
       />
 </launch>
