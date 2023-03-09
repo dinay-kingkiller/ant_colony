@@ -45,6 +45,7 @@
 #include "ros/ros.h"
 #include "ant_colony/PheromoneEdge.h"
 #include "ant_colony/PheromonePath.h"
+#include "ant_colony/PheromoneMap.h"
 #include "ant_colony/Directions.h"
 #include "ant_colony/graph.h"
 
@@ -298,10 +299,14 @@ int main(int argc, char **argv) {
   // Start up map node.
   ros::init(argc, argv, "map");
   ros::NodeHandle nh;
+  ros::Publisher plotter = nh.advertise<ant_colony::PheromoneMap>("plot_data", 1000);
   ros::Subscriber scent_path = nh.subscribe("edge_pheromones", 1000, AddEdgePheromones);
   ros::Subscriber scent_edge = nh.subscribe("path_pheromones", 1000, AddPathPheromones);
   ros::ServiceServer scent_choice = nh.advertiseService("directions", ChoosePath);
   ros::Rate loop_rate(1);
+
+  //
+  ant_colony::PheromoneMap map_msg;
 
   // Set global parameters.
   nh.getParam("VertexCount", VertexCount);
@@ -326,6 +331,7 @@ int main(int argc, char **argv) {
   SetupPheromones();
   while (ros::ok()) {
     UpdatePheromones();
+    plotter.publish(map_msg);
     ros::spin();
     loop_rate.sleep();
   }

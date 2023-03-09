@@ -53,7 +53,7 @@ add_message_files(
   Location.msg
   PheromoneEdge.msg
   PheromonePath.msg
-  PlotData.msg
+  PheromoneMap.msg
 )
 
 ## Generate services in the 'srv' folder
