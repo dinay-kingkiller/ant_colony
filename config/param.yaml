@@ -1,7 +1,7 @@
 # Map Parameters
 VertexCount: 10
-size_x: 100
-size_y: 100
+size_x: 10
+size_y: 10
 
 # Algorithm Parameters
 DistancePower: 1.0 # Increase to avoid long trips.

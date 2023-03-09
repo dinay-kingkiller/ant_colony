@@ -29,17 +29,43 @@
 
 import rospy
 
-from matplotlib.pyplot import plot
+from matplotlib import pyplot
+from matplotlib.animation import FuncAnimation
 
-from ant_colony.msg import PlotData
+from ant_colony.msg import PheromoneMap
 
-def update(data):
-    for from_p, to_p, value in zip(zip(data.from_x, data.from_y),
-                                   zip(data.to_x, data.to_y),
-                                   data.values):
-        plot(from_p, to_p, linewidth=value)
+class Vizualizer:
+    def __init__(self, size_x, size_y):
+        # self.figure = pyplot.figure()
+        # self.axes = pyplot(xlim = (0, size_x), ylim = (0, size_y)
+        self.figure, self.ax = pyplot.subplots()
+        self.ax.set_xlim(0, size_x)
+        self.ax.set_ylim(0, size_y)
+        
+    def animate(self):
+        for path in self.paths:
+            
+    def listen(self, msg):
+        for from_p, to_p, value in zip(zip(data.from_x, data.from_y),
+
+                                       zip(data.to_x, data.to_y),
+
+                                       data.values):
+
+            pyplot.plot(from_p, to_p, linewidth=value)
+
+            pyplot.show()
 
 if __name__ == "__main__":
-    rospy.init_node("plotter")
-    rospy.Subscriber("plot_data", PlotData, update)
-    rospy.spin()
+    # Setup ROS communication
+    rospy.init_node("vizualizer")
+    rospy.Subscriber("pheromone_map", PheromoneMap, listen)
+
+    # Setup vizualizer
+    size_x = rospy.get_param('size_x')
+    size_y = rospy.get_param('size_y')
+    vizualizer = Vizualizer(size_x, size_y)
+
+    # Animate vizualizer
+    animation = FuncAnimation(vizualizer.figure, vizualizer.animate)
+    pyplot.show()
