@@ -44,17 +44,21 @@ class Visualizer:
         self.figure, self.ax = pyplot.subplots()
         self.ax.set_xlim(0, size_x)
         self.ax.set_ylim(0, size_y)
+        self.edges = list()
         self.x_coord = list()
         self.y_coord = list()
-        self.values = dict()
-    def animate(self):
+        self.strength = dict()
+    def animate(self, frame):
         for x, y in zip(self.x_coord, self.y_coord):
             self.ax.plot(x, y, val=self.values[(x[0], x[1], y[0], y[1])])
     def listen(self, msg):
-        for x0, x1, y0, y1, value in zip(data.msg_x, msg.to_x, msg.from_y, msg.to_y, msg.values):
-            if (x0, x1, y0, y1) not in self.values:
+        for x0, x1, y0, y1, value in zip(msg.from_x, msg.to_x, msg.from_y, msg.to_y, msg.strength):
+            if (x0, y0) == (x1, y1):
+                continue
+            if {(x0, y0), (x1, y1)} not in self.edges:
                 self.x_coord.append([x0, x1])
                 self.y_coord.append([y0, y1])
+                self.edges.append({(x0, y0), (x1, y1)})
             self.values[(x0, x1, y0, y1)] = value
 
 if __name__ == "__main__":
@@ -67,6 +71,6 @@ if __name__ == "__main__":
     visualizer = Visualizer(size_x, size_y)
 
     # Animate visualizer
-    rospy.Subscriber("pheromone_map", PheromoneMap, visualizer.listen)
+    rospy.Subscriber("map_pheromones", PheromoneMap, visualizer.listen)
     animation = FuncAnimation(visualizer.figure, visualizer.animate)
-    rospy.spin()
+    pyplot.show(block=True)

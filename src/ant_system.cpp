@@ -58,25 +58,58 @@ float EvaporationPower;
 float PheromonePower;
 float RewardPower;
 
-//
+// Map description
 std::vector<float> x_coordinates;
 std::vector<float> y_coordinates;
 std::vector<std::vector<float>> distances; /// adjacency matrix
-std::vector<float> pheromones;
+std::vector<std::vector<float>> pheromones;
 std::vector<std::vector<float>> desirability; /// distances[i][j]**-DistancePower
+
+// Flattened Map (for plotting message)
+std::vector<float> from_x;
+std::vector<float> from_y;
+std::vector<float> to_x;
+std::vector<float> to_y;
+ant_colony::PheromoneMap map_msg; // TODO: change size from v_c**2 >> (v_c-1)!
 
 /// \brief This function places pheromones along all valid edges.
 ///
 /// This is run once at the start to put pheromones in an initial state.
 void SetupPheromones() {
   desirability.resize(VertexCount, std::vector<float>(VertexCount, 0.0));
-  pheromones.resize(VertexCount*VertexCount, 0.0);
+  pheromones.resize(VertexCount, std::vector<float>(VertexCount, 0.0));
   for (int i = 0; i < VertexCount; ++i) {
     for (int j = 0; j < VertexCount; ++j) {
       if (distances[i][j]!=0) {
 	desirability[i][j] = pow(distances[i][j], -DistancePower);
-	pheromones[i*VertexCount+j] = 1.0;
+	pheromones[i][j] = 1.0;
       }
+    }
+  }
+}
+
+void SetupMsg() {
+  map_msg.from_x.resize(VertexCount*VertexCount, 0.0);
+  map_msg.from_y.resize(VertexCount*VertexCount, 0.0);
+  map_msg.to_x.resize(VertexCount*VertexCount, 0.0);
+  map_msg.to_y.resize(VertexCount*VertexCount, 0.0);
+  map_msg.strength.resize(VertexCount*VertexCount, 0.0);
+  for (int i = 0; i < VertexCount; ++i) {
+    for (int j = 0; j < VertexCount; ++j) {
+      // Fill flat vector. Filter later in visualizer
+      map_msg.from_x[i*VertexCount+j] = x_coordinates[i];
+      map_msg.from_y[i*VertexCount+j] = y_coordinates[i];
+      map_msg.to_x[i*VertexCount+j] = x_coordinates[j];
+      map_msg.to_y[i*VertexCount+j] = y_coordinates[j];
+      map_msg.strength[i*VertexCount+j] = pheromones[i][j];
+    }
+  }
+}
+
+void UpdateMsg() {
+  for (int i = 0; i < VertexCount; ++i) {
+    for (int j = 0; j < VertexCount; ++j) {
+      map_msg.strength[i*VertexCount+j] = pheromones[i][j];
     }
   }
 }
@@ -85,77 +118,37 @@ void SetupPheromones() {
 ///
 ///
 void AddEdgePheromones(const ant_colony::PheromoneEdge::ConstPtr& msg) {
-  float max;
-  int pheromone_i = msg->from_vertex * VertexCount + msg->to_vertex;
-  int pheromone_j = msg->to_vertex * VertexCount + msg->from_vertex;
-  pheromones[pheromone_i] += msg->deposit;
-  // pheromones[pheromone_j] += msg->deposit;
-  max = pheromones[pheromone_i];
-  // TODO: Verify pheromones don't go up if not deposited.
-  // i.e. new deposits should always be the max value.
-  /*
-  for (int i = 0; i < VertexCount*VertexCount; ++i) {
-    if (pheromones[i] < .001) {
-      pheromones[i] = 0.0;
-    }
-    else if (pheromones[i] > max) {
-      pheromones[i] = 1.0;
-    }
-    else {
-      pheromones[i] = pheromones[i] / max;
-    }
-  }
-  */
+  pheromones[msg->from_vertex][msg->to_vertex] += msg->deposit;
+  pheromones[msg->to_vertex][msg->from_vertex] += msg->deposit;
 }
 
 /// \brief
 void AddPathPheromones(const ant_colony::PheromonePath::ConstPtr& msg) {
-  float max;
-  int from_vertex;
-  int to_vertex;
   std::set<std::set<int>> edges;
   std::set<std::set<int>>::iterator e_itr;
 
-  // Filter edges.
+  // Convert tour to a SET of edges.
   for (int i = 1; i < msg->tour.size(); ++i) {
     edges.insert({msg->tour[i-1], msg->tour[i]});
   }
 
   // Add pheromones.
-  max = 0.0;
   for (e_itr = edges.begin(); e_itr != edges.end(); ++e_itr) {
     std::set<int> edge = *e_itr;
     std::set<int>::iterator from_vertex = edge.begin();
     std::set<int>::iterator to_vertex = edge.end();
-    pheromones[*from_vertex * VertexCount + *to_vertex] += msg->deposit;
-    pheromones[*to_vertex * VertexCount + *from_vertex] += msg->deposit;
-    if (pheromones[*from_vertex * VertexCount + *to_vertex] > max) {
-      max = pheromones[*from_vertex * VertexCount + *to_vertex];
-    }
+    pheromones[*from_vertex][*to_vertex] += msg->deposit;
+    pheromones[*to_vertex][*from_vertex] += msg->deposit;
   }
 
-  // Normalize pheromones.
-  // TODO: Verify pheromones don't go up if not deposited.
-  // i.e. new deposits should always be the max value.
-  /*
-  for (int i = 0; i < VertexCount*VertexCount; ++i) {
-    if (pheromones[i] < .001) {
-      pheromones[i] = 0.0;
-    }
-    else if (pheromones[i] + .001 > max) {
-      pheromones[i] = 1.0;
-    }
-    else {
-      pheromones[i] = pheromones[i] / max;
-    }
-  }
-  */
 }
 
 /// \brief Evaporate pheromones.
 void UpdatePheromones() {
-  for (int i = 0; i < VertexCount*VertexCount; ++i) {
-    pheromones[i] = (1-EvaporationPower) * pheromones[i];
+  for (int i = 0; i < VertexCount; ++i) {
+    for (int j = 0; j < VertexCount; ++j) {
+      pheromones[i][j] = (1-EvaporationPower) * pheromones[i][j];
+    }	  
   }
 }
 
@@ -189,8 +182,7 @@ bool ChoosePath(ant_colony::Directions::Request &req,
       }
     }
     if (!found) {
-      attraction = std::pow(pheromones[start*VertexCount + i], PheromonePower)
-	* desirability[start][i];
+      attraction = std::pow(pheromones[start][i], PheromonePower) * desirability[start][i];
       attraction_ttl += attraction;
       desirability_ttl += desirability[start][i];
     }
@@ -211,8 +203,7 @@ bool ChoosePath(ant_colony::Directions::Request &req,
       // Skip if vertex is in skip_vertices;
       continue;
     }
-    attraction = std::pow(pheromones[start*VertexCount + i], PheromonePower)
-      * desirability[start][i];
+    attraction = std::pow(pheromones[start][i], PheromonePower) * desirability[start][i];
     if (attraction / attraction_ttl < 0.001) {
       continue;
     }
@@ -234,12 +225,6 @@ bool ChoosePath(ant_colony::Directions::Request &req,
 	break;
       }
     }
-    ROS_INFO_STREAM("from_vertex: "<<start
-		    <<", to_vertex: "<<i
-		    <<", Skipped: "<<found
-		    <<", Distance: "<<distances[start][i]
-		    <<", pheromones: "<<pheromones[start*VertexCount + i]
-		    <<", desirability: "<<desirability[start][i]);
   }
   sum = 0.0;
   for (int i = 0; i < VertexCount; ++i) {
@@ -280,7 +265,7 @@ bool ChoosePath(ant_colony::Directions::Request &req,
 		    <<", Skipped: "<<found
 		    <<", Distance: "<<distances[start][i]
 		    <<", Opp: "<<distances[i][start]
-		    <<", attraction: "<<pheromones[start*VertexCount + i]
+		    <<", attraction: "<<pheromones[start][i]
 		    <<", desirability: "<<desirability[start][i]);
     ROS_INFO_STREAM("From: "<<x_coordinates[start]<<", "<<y_coordinates[start]
 		    <<"; To: "<<x_coordinates[i]<<", "<<y_coordinates[i]);
@@ -299,7 +284,7 @@ int main(int argc, char **argv) {
   // Start up map node.
   ros::init(argc, argv, "map");
   ros::NodeHandle nh;
-  ros::Publisher plotter = nh.advertise<ant_colony::PheromoneMap>("plot_data", 1000);
+  ros::Publisher plotter = nh.advertise<ant_colony::PheromoneMap>("map_pheromones", 1000);
   ros::Subscriber scent_path = nh.subscribe("edge_pheromones", 1000, AddEdgePheromones);
   ros::Subscriber scent_edge = nh.subscribe("path_pheromones", 1000, AddPathPheromones);
   ros::ServiceServer scent_choice = nh.advertiseService("directions", ChoosePath);
@@ -329,10 +314,12 @@ int main(int argc, char **argv) {
 
   // Track Pheromones.
   SetupPheromones();
+  SetupMsg();
+
   while (ros::ok()) {
     UpdatePheromones();
+    UpdateMsg();
     plotter.publish(map_msg);
-    ros::spin();
     loop_rate.sleep();
   }
   return 0;
