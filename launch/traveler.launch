@@ -11,8 +11,8 @@
       />
   <node
       pkg="ant_colony"
-      type="plotter.py"
-      name="plotter"
+      type="visualizer.py"
+      name="visualizer"
       />
   <node
       pkg="ant_colony"

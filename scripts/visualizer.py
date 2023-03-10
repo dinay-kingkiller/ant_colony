@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+ #!/usr/bin/env python
 
 # BSD 3-Clause License
 # 
@@ -27,6 +27,11 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+##
+# \brief
+#
+
+from math import factorial
 import rospy
 
 from matplotlib import pyplot
@@ -34,38 +39,34 @@ from matplotlib.animation import FuncAnimation
 
 from ant_colony.msg import PheromoneMap
 
-class Vizualizer:
+class Visualizer:
     def __init__(self, size_x, size_y):
-        # self.figure = pyplot.figure()
-        # self.axes = pyplot(xlim = (0, size_x), ylim = (0, size_y)
         self.figure, self.ax = pyplot.subplots()
         self.ax.set_xlim(0, size_x)
         self.ax.set_ylim(0, size_y)
-        
+        self.x_coord = list()
+        self.y_coord = list()
+        self.values = dict()
     def animate(self):
-        for path in self.paths:
-            
+        for x, y in zip(self.x_coord, self.y_coord):
+            self.ax.plot(x, y, val=self.values[(x[0], x[1], y[0], y[1])])
     def listen(self, msg):
-        for from_p, to_p, value in zip(zip(data.from_x, data.from_y),
-
-                                       zip(data.to_x, data.to_y),
-
-                                       data.values):
-
-            pyplot.plot(from_p, to_p, linewidth=value)
-
-            pyplot.show()
+        for x0, x1, y0, y1, value in zip(data.msg_x, msg.to_x, msg.from_y, msg.to_y, msg.values):
+            if (x0, x1, y0, y1) not in self.values:
+                self.x_coord.append([x0, x1])
+                self.y_coord.append([y0, y1])
+            self.values[(x0, x1, y0, y1)] = value
 
 if __name__ == "__main__":
-    # Setup ROS communication
-    rospy.init_node("vizualizer")
-    rospy.Subscriber("pheromone_map", PheromoneMap, listen)
+    rospy.init_node("visualizer")
+    
+    # Setup visualizer
+    size_x = rospy.get_param("size_x")
+    size_y = rospy.get_param("size_y")
+    VertexCount = rospy.get_param("VertexCount")
+    visualizer = Visualizer(size_x, size_y)
 
-    # Setup vizualizer
-    size_x = rospy.get_param('size_x')
-    size_y = rospy.get_param('size_y')
-    vizualizer = Vizualizer(size_x, size_y)
-
-    # Animate vizualizer
-    animation = FuncAnimation(vizualizer.figure, vizualizer.animate)
-    pyplot.show()
+    # Animate visualizer
+    rospy.Subscriber("pheromone_map", PheromoneMap, visualizer.listen)
+    animation = FuncAnimation(visualizer.figure, visualizer.animate)
+    rospy.spin()
