@@ -72,6 +72,8 @@ std::vector<float> to_x;
 std::vector<float> to_y;
 ant_colony::PheromoneMap map_msg; // TODO: change size from v_c**2 >> (v_c-1)!
 
+int counter; // for seeding srand
+
 /// \brief This function places pheromones along all valid edges.
 ///
 /// This is run once at the start to put pheromones in an initial state.
@@ -156,6 +158,8 @@ void UpdatePheromones() {
 /// \brief ROS Service provided to ants. They ask where they should go 
 bool ChoosePath(ant_colony::Directions::Request &req,
 		 ant_colony::Directions::Response &res) {
+  srand(time(0)+counter);
+  counter += rand();
   int start = req.from_here;
   std::vector<int> skip_vertices = req.skip_here;
   double attraction;
