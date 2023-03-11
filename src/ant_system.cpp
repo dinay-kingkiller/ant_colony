@@ -290,9 +290,6 @@ int main(int argc, char **argv) {
   ros::ServiceServer scent_choice = nh.advertiseService("directions", ChoosePath);
   ros::Rate loop_rate(1);
 
-  //
-  ant_colony::PheromoneMap map_msg;
-
   // Set global parameters.
   nh.getParam("VertexCount", VertexCount);
   nh.getParam("size_x", size_x);
@@ -320,6 +317,7 @@ int main(int argc, char **argv) {
     UpdatePheromones();
     UpdateMsg();
     plotter.publish(map_msg);
+    ros::spinOnce();
     loop_rate.sleep();
   }
   return 0;

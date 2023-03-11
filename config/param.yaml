@@ -1,10 +1,10 @@
 # Map Parameters
-VertexCount: 10
-size_x: 10
-size_y: 10
+VertexCount: 4
+size_x: 5
+size_y: 5
 
 # Algorithm Parameters
 DistancePower: 1.0 # Increase to avoid long trips.
-PheromonePower: 5.0 # Increase to trust other ants.
+PheromonePower: 1.0 # Increase to trust other ants.
 EvaporationPower: 0.1 # Increase to remove older paths.
 RewardPower: 1.0 # Increase to favor newest paths.

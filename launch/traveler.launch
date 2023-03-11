@@ -13,11 +13,13 @@
       pkg="ant_colony"
       type="visualizer.py"
       name="visualizer"
+      output="screen"
       />
   <node
       pkg="ant_colony"
       type="traveler_ant"
       name="Aurora"
+      output="screen"
       />
   <node
       pkg="ant_colony"

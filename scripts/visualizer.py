@@ -36,31 +36,43 @@ import rospy
 
 from matplotlib import pyplot
 from matplotlib.animation import FuncAnimation
+from matplotlib.collections import LineCollection
 
 from ant_colony.msg import PheromoneMap
 
 class Visualizer:
     def __init__(self, size_x, size_y):
+        self.edge_s = set()
+        self.edge_l = list()
+        self.lines = LineCollection(self.edge_l)
+        self.index = dict()
+        self.strength = []
         self.figure, self.ax = pyplot.subplots()
         self.ax.set_xlim(0, size_x)
         self.ax.set_ylim(0, size_y)
-        self.edges = list()
-        self.x_coord = list()
-        self.y_coord = list()
-        self.strength = dict()
+        self.ax.add_collection(self.lines)
+    def init_func(self):
+        self.lines.set_segments([])
+        self.lines.set_linewidths([])
+        return self.lines,
     def animate(self, frame):
-        for x, y in zip(self.x_coord, self.y_coord):
-            self.ax.plot(x, y, val=self.values[(x[0], x[1], y[0], y[1])])
+        rospy.loginfo("Animate Call")
+        return self.lines,
     def listen(self, msg):
+        rospy.loginfo("Listen Call")
         for x0, x1, y0, y1, value in zip(msg.from_x, msg.to_x, msg.from_y, msg.to_y, msg.strength):
             if (x0, y0) == (x1, y1):
                 continue
-            if {(x0, y0), (x1, y1)} not in self.edges:
-                self.x_coord.append([x0, x1])
-                self.y_coord.append([y0, y1])
-                self.edges.append({(x0, y0), (x1, y1)})
-            self.values[(x0, x1, y0, y1)] = value
-
+            if (x0, y0, x1, y1) not in self.edge_s:
+                self.edge_s.add((x0, y0, x1, y1))
+                self.edge_l.append([(x0, y0), (x1, y1)])
+                self.strength.append(value)
+                self.index[(x0, y0, x1, y1)] = len(self.edge_s) - 1
+            self.strength[self.index[(x0, y0, x1, y1)]] = value
+        self.lines.set_segments(self.edge_l)
+        self.lines.set_linewidths(self.strength)
+        rospy.loginfo(len(self.strength))
+            
 if __name__ == "__main__":
     rospy.init_node("visualizer")
     
@@ -72,5 +84,7 @@ if __name__ == "__main__":
 
     # Animate visualizer
     rospy.Subscriber("map_pheromones", PheromoneMap, visualizer.listen)
-    animation = FuncAnimation(visualizer.figure, visualizer.animate)
+    animation = FuncAnimation(visualizer.figure,
+                              visualizer.animate,
+                              init_func=visualizer.init_func)
     pyplot.show(block=True)

@@ -59,16 +59,20 @@ int main(int argc, char **argv) {
   nh.getParam("VertexCount", VertexCount);
   nh.getParam("RewardPower", RewardPower);
 
+  ROS_INFO("Waiting for directions service.");
   ros::service::waitForService("directions", 1000000);
+  ROS_INFO("Directions service connected!");
   
   while (ros::ok()) {
     // The ant wants to know where to go next.
     directions_srv.request.skip_here = tour;
     directions_srv.request.from_here = current_vertex;
+    ROS_INFO("Waiting for directions...");
     if (not lost_ant.call(directions_srv)) {
       ROS_ERROR("Could not talk to Directions service.");
       return 1;
     }
+    ROS_INFO("Received directions");
     next_vertex = directions_srv.response.go_here;
     travel_time = directions_srv.response.travel_time;
 
