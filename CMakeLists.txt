@@ -132,15 +132,17 @@ add_library(graph src/graph.cpp
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-add_executable(ant_system src/ant_system.cpp)
-add_executable(forager_ant src/forager_ant.cpp)
-add_executable(traveler_ant src/traveler_ant.cpp)
+add_executable(colony_ant_system src/ant_system.cpp)
+add_executable(colony_forager_ant src/forager_ant.cpp)
+add_executable(colony_traveler_ant src/traveler_ant.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
 ## target back to the shorter version for ease of user use
 ## e.g. "rosrun someones_pkg node" instead of "rosrun someones_pkg someones_pkg_node"
-# set_target_properties(${PROJECT_NAME}_node PROPERTIES OUTPUT_NAME node PREFIX "")
+set_target_properties(colony_ant_system PROPERTIES OUTPUT_NAME ant_system PREFIX "")
+set_target_properties(colony_forager_ant PROPERTIES OUTPUT_NAME forager_ant PREFIX "")
+set_target_properties(colony_traveler_ant PROPERTIES OUTPUT_NAME traveler_ant PREFIX "")
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above
@@ -148,15 +150,15 @@ add_dependencies(graph
   ant_colony_gencpp
   ant_colony_generate_messages_cpp)
 
-add_dependencies(ant_system
+add_dependencies(colony_ant_system
   ant_colony_gencpp
   ant_colony_generate_messages_cpp)
 
-add_dependencies(forager_ant
+add_dependencies(colony_forager_ant
   ant_colony_gencpp
   ant_colony_generate_messages_cpp)
 
-add_dependencies(traveler_ant
+add_dependencies(colony_traveler_ant
   ant_colony_gencpp
   ant_colony_generate_messages_cpp)
 
@@ -164,14 +166,14 @@ add_dependencies(traveler_ant
 target_link_libraries(graph
   ${catkin_LIBRARIES})
 
-target_link_libraries(ant_system
+target_link_libraries(colony_ant_system
   graph
   ${catkin_LIBRARIES})
 
-target_link_libraries(forager_ant
+target_link_libraries(colony_forager_ant
   ${catkin_LIBRARIES})
 
-target_link_libraries(traveler_ant
+target_link_libraries(colony_traveler_ant
   ${catkin_LIBRARIES})
 
 

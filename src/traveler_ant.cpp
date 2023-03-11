@@ -25,6 +25,7 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+#include <random>
 #include <set>
 #include <string>
 #include <vector>
@@ -42,6 +43,15 @@ std::vector<int> tour = {0};
 float tour_length = 0;
 int VertexCount;
 float RewardPower;
+
+class traveler {
+public:
+  traveler() {
+  }
+  void choose_path() {
+  }
+};
+
 
 int main(int argc, char **argv) {
   // Start talking with ROS.
@@ -64,6 +74,13 @@ int main(int argc, char **argv) {
   ROS_INFO("Directions service connected!");
   
   while (ros::ok()) {
+    // ant.choose_path();
+    // ant.travel_path();
+    // ant.update_path();
+    // if ant.is_at_goal() {
+    // ant.reset_tour();
+    // ant.update_map();
+    // }
     // The ant wants to know where to go next.
     directions_srv.request.skip_here = tour;
     directions_srv.request.from_here = current_vertex;
@@ -76,6 +93,7 @@ int main(int argc, char **argv) {
     next_vertex = directions_srv.response.go_here;
     travel_time = directions_srv.response.travel_time;
 
+    // ant.travel();
     // The ant is traveling.
     location_msg.name = ros::this_node::getName();
     location_msg.from_vertex = current_vertex;
