@@ -30,7 +30,6 @@
 /// ants should hold information about the problem to be solved, while the map
 /// files hold information on the algorithm used to solve.
 
-
 #include <random>
 #include <set>
 #include <string>
@@ -51,20 +50,38 @@ float tour_length = 0;
 int VertexCount;
 float RewardPower;
 
-class traveler {
+class Traveler {
 public:
   std::mt19937 mt_rand;
   int vertex_count;
-  traveler() {
+  std::vector<int> tour;
+  Traveler(int count_v)
+    : mt_rand()
+  {
+    vertex_count = count_v;
     std::random_device rd;
-    mt_rand(rd());
+    mt_rand.seed(rd());
   }
   int choose_path(ant_colony::Choices srv) {
     float sum_a;
     float sum_d;
-    for (int i = 0; i < VertexCount; ++i) {
-      
+    bool visited_b; // TODO: Refactor to remove visited vector
+
+    // Find totals
+    for (int i = 0; i < vertex_count; ++i) {
+      visited_b = false;
+      for (int j: tour) {
+	if (i == j) {
+	  visited_b = true;
+	}
+      }
+      if (visited_b) {
+	continue;
+      }
+      sum_a += srv.response.attractability[i];
+      sum_d += srv.response.desirability[i];
     }
+    
     return mt_rand();
   }
 };
