@@ -1,0 +1,4 @@
+int32 from_here
+---
+float32[] attractability
+float32[] desirability

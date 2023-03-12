@@ -34,6 +34,9 @@
 #include "ant_colony/Location.h"
 #include "ant_colony/PheromoneEdge.h"
 
+
+
+
 int main(int argc, char **argv) {
   // Important Places
   int current_vertex = 0;

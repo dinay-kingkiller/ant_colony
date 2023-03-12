@@ -312,7 +312,7 @@ int main(int argc, char **argv) {
   else if (GraphType == "Incomplete") {
     GenIncompleteGraph(x_coordinates, y_coordinates, distances, VertexCount, size_x, size_y);
   }
-  else {ROS_ERROR("GraphType not set.");}
+  else {ROS_ERROR("GraphType not set."); return 1;}
 
   // Track Pheromones.
   SetupPheromones();

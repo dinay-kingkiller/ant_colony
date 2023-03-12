@@ -25,6 +25,12 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+/// \brief A traveling salesman ant.
+///
+/// ants should hold information about the problem to be solved, while the map
+/// files hold information on the algorithm used to solve.
+
+
 #include <random>
 #include <set>
 #include <string>
@@ -32,6 +38,7 @@
 
 #include "ros/ros.h"
 #include "ant_colony/Directions.h"
+#include "ant_colony/Choices.h"
 #include "ant_colony/Location.h"
 #include "ant_colony/PheromonePath.h"
 
@@ -46,9 +53,19 @@ float RewardPower;
 
 class traveler {
 public:
+  std::mt19937 mt_rand;
+  int vertex_count;
   traveler() {
+    std::random_device rd;
+    mt_rand(rd());
   }
-  void choose_path() {
+  int choose_path(ant_colony::Choices srv) {
+    float sum_a;
+    float sum_d;
+    for (int i = 0; i < VertexCount; ++i) {
+      
+    }
+    return mt_rand();
   }
 };
 
