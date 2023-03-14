@@ -141,15 +141,12 @@ add_executable(colony_traveler_ant src/traveler_ant.cpp)
 ## The above recommended prefix causes long target names, the following renames the
 ## target back to the shorter version for ease of user use
 ## e.g. "rosrun someones_pkg node" instead of "rosrun someones_pkg someones_pkg_node"
-set_target_properties(colony_ant_system PROPERTIES OUTPUT_NAME ant_system PREFIX "")
-set_target_properties(colony_forager_ant PROPERTIES OUTPUT_NAME forager_ant PREFIX "")
-set_target_properties(colony_traveler_ant PROPERTIES OUTPUT_NAME traveler_ant PREFIX "")
+set_target_properties(colony_ant_system PROPERTIES OUTPUT_NAME run_ant_system PREFIX "")
+set_target_properties(colony_forager_ant PROPERTIES OUTPUT_NAME run_forager_ant PREFIX "")
+set_target_properties(colony_traveler_ant PROPERTIES OUTPUT_NAME run_traveler_ant PREFIX "")
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above
-add_dependencies(graph
-  ant_colony_gencpp
-  ant_colony_generate_messages_cpp)
 
 add_dependencies(colony_ant_system
   ant_colony_gencpp
@@ -164,8 +161,8 @@ add_dependencies(colony_traveler_ant
   ant_colony_generate_messages_cpp)
 
 ## Specify libraries to link a library or executable target against
-target_link_libraries(graph
-  ${catkin_LIBRARIES})
+# target_link_libraries(graph
+#   ${catkin_LIBRARIES})
 
 target_link_libraries(colony_ant_system
   graph

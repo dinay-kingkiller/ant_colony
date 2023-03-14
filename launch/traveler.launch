@@ -4,7 +4,7 @@
   <rosparam> GraphType: Complete </rosparam>
   <node
       pkg="ant_colony"
-      type="ant_system"
+      type="run_ant_system"
       name="colony"
       required="true"
       output="screen"
@@ -17,118 +17,118 @@
       />
   <node
       pkg="ant_colony"
-      type="traveler_ant"
+      type="traveler_ant_node"
       name="Aurora"
       output="screen"
       />
   <node
       pkg="ant_colony"
-      type="traveler_ant"
+      type="traveler_ant_node"
       name="Brontes"
       />
   <node
       pkg="ant_colony"
-      type="traveler_ant"
+      type="run_traveler_ant"
       name="Cora"
       />
   <node
       pkg="ant_colony"
-      type="traveler_ant"
+      type="run_traveler_ant"
       name="Dahlia"
       />
   <node
       pkg="ant_colony"
-      type="traveler_ant"
+      type="run_traveler_ant"
       name="Enya"
       />
   <node
       pkg="ant_colony"
-      type="traveler_ant"
+      type="run_traveler_ant"
       name="Fiamma"
       />
   <node
       pkg="ant_colony"
-      type="traveler_ant"
+      type="run_traveler_ant"
       name="Gloria"
       />
   <node
       pkg="ant_colony"
-      type="traveler_ant"
+      type="run_traveler_ant"
       name="Hespera"
       />
   <node
       pkg="ant_colony"
-      type="traveler_ant"
+      type="run_traveler_ant"
       name="Inola"
       />
   <node
       pkg="ant_colony"
-      type="traveler_ant"
+      type="run_traveler_ant"
       name="Jade"
       />
   <node
       pkg="ant_colony"
-      type="traveler_ant"
+      type="run_traveler_ant"
       name="Kierra"
       />
   <node
       pkg="ant_colony"
-      type="traveler_ant"
+      type="run_traveler_ant"
       name="Leyla"
       />
   <node
       pkg="ant_colony"
-      type="traveler_ant"
+      type="run_traveler_ant"
       name="Maya"
       />
   <node
       pkg="ant_colony"
-      type="traveler_ant"
+      type="run_traveler_ant"
       name="Naomi"
       />
   <node
-      pkg="ant_colony"
-      type="traveler_ant"
+      pkg="run_ant_colony"
+      type="run_traveler_ant"
       name="Petra"
       />
   <node
       pkg="ant_colony"
-      type="traveler_ant"
+      type="run_traveler_ant"
       name="Qira"
       />
   <node
       pkg="ant_colony"
-      type="traveler_ant"
+      type="run_traveler_ant"
       name="Riley"
       />
   <node
       pkg="ant_colony"
-      type="traveler_ant"
+      type="run_traveler_ant"
       name="Sierra"
       />
   <node
       pkg="ant_colony"
-      type="traveler_ant"
+      type="run_traveler_ant"
       name="Tyche"
       />
   <node
       pkg="ant_colony"
-      type="traveler_ant"
+      type="run_traveler_ant"
       name="Vesta"
       />
   <node
       pkg="ant_colony"
-      type="traveler_ant"
+      type="run_traveler_ant"
       name="Willow"
       />
   <node
       pkg="ant_colony"
-      type="traveler_ant"
+      type="run_traveler_ant"
       name="Yara"
       />
   <node
       pkg="ant_colony"
-      type="traveler_ant"
+      type="run_traveler_ant"
       name="Zoe"
       />
 </launch>

@@ -199,7 +199,7 @@ bool ChoosePath(ant_colony::Directions::Request &req,
     if (attraction_ttl < 0.001) {break;}
     found = false;
     for (int j: skip_vertices) {
-      if (i==j) {
+      if (i == j) {
 	found = true;
 	break;
       }
@@ -225,7 +225,7 @@ bool ChoosePath(ant_colony::Directions::Request &req,
   for (int i = 0; i < VertexCount; ++i) {
     found = false;
     for (int j: skip_vertices) {
-      if (i==j) {
+      if (i == j) {
 	found = true;
 	break;
       }
@@ -236,7 +236,7 @@ bool ChoosePath(ant_colony::Directions::Request &req,
     if (desirability_ttl < 0.001) {break;}
     found = false;
     for (int j: skip_vertices) {
-      if (i==j) {
+      if (i == j) {
 	found = true;
 	break;
       }
@@ -260,7 +260,7 @@ bool ChoosePath(ant_colony::Directions::Request &req,
   for (int i = 0; i < VertexCount; ++i) {
     found = false;
     for (int j: skip_vertices) {
-      if (i==j) {
+      if (i == j) {
 	found = true;
 	break;
       }

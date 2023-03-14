@@ -52,37 +52,80 @@ float RewardPower;
 
 class Traveler {
 public:
-  std::mt19937 mt_rand;
   int vertex_count;
+  std::mt19937 mt_rand;
+  std::uniform_real_distribution<> dist;
   std::vector<int> tour;
   Traveler(int count_v)
-    : mt_rand()
+    : mt_rand(),
+      dist(0.0, 1.0),
+      tour()
   {
     vertex_count = count_v;
     std::random_device rd;
     mt_rand.seed(rd());
   }
   int choose_path(ant_colony::Choices srv) {
+    bool visited_b; // TODO: Refactor to remove visited global
+    float sum;
     float sum_a;
     float sum_d;
-    bool visited_b; // TODO: Refactor to remove visited vector
-
-    // Find totals
+    float choice = dist(mt_rand);
+    
+    if (tour.size() == vertex_count) {
+      // If all the vertices have been visited return to home.
+      return 0;
+    }
+    
+    // Find attraction and desirability sums.
     for (int i = 0; i < vertex_count; ++i) {
       visited_b = false;
       for (int j: tour) {
 	if (i == j) {
 	  visited_b = true;
+	  break;
 	}
       }
-      if (visited_b) {
-	continue;
-      }
-      sum_a += srv.response.attractability[i];
+      if (visited_b) {continue;}
+      sum_a += srv.response.attraction[i];
       sum_d += srv.response.desirability[i];
     }
+
+    // Choose based on attraction.
+    float choice_a = sum_a * choice;
+    sum = 0.0;
+    for (int i = 0; i < vertex_count; ++i) {
+      if (sum_a < 0.001) {break;}
+      visited_b = false;
+      for (int j: tour) {
+	if (i == j) {
+	  visited_b = true;
+	  break;
+	}
+      }
+      if (visited_b) {continue;}
+      if (srv.response.attraction[i] < 0.001) {continue;}
+      if (choice_a - sum < 0.001) {return i;}
+    }
+
+    // Use desirability if the pheromones are faint.
+    float choice_d = sum_d * choice;
+    sum = 0.0;
+    for (int i = 0; i < vertex_count; ++i) {
+      if (sum_d < 0.001) {break;}
+      visited_b = false;
+      for (int j: tour) {
+	if (i == j) {
+	  visited_b = true;
+	  break;
+	}
+      }
+      if (visited_b) {continue;}
+      if (srv.response.desirability[i] < 0.001) {continue;}
+      if (choice_d - sum < 0.001) {return i;}
+    }
     
-    return mt_rand();
+    std::runtime_error("Cannot find best path. The graph might be incomplete.");
   }
 };
 
