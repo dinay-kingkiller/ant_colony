@@ -3,7 +3,7 @@
   <name>ant_colony</name>
   <version>0.0.0</version>
   <description>A package full of ants! An implementation of Ant System algorithm.</description>
-  <maintainer email="dinay.kingkiller@gmail.com">dinay</maintainer>
+  <maintainer email="user@domain.com">user</maintainer>
   <license>BSD</license>
 
   <!-- The *depend tags are used to specify dependencies -->

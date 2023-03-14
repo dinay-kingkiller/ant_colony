@@ -1,0 +1,4 @@
+int32 from_vertex
+int32 to_vertex
+---
+float32 travel_time

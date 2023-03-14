@@ -38,6 +38,7 @@
 #include "ros/ros.h"
 #include "ant_colony/Directions.h"
 #include "ant_colony/Choices.h"
+#include "ant_colony/Edge.h"
 #include "ant_colony/Location.h"
 #include "ant_colony/PheromonePath.h"
 
@@ -52,19 +53,21 @@ float RewardPower;
 
 class Traveler {
 public:
-  int vertex_count;
+  const int vertex_count;
+  int location;
   std::mt19937 mt_rand;
   std::uniform_real_distribution<> dist;
   std::vector<int> tour;
-  Traveler(int count_v)
-    : mt_rand(),
+  ///
+  Traveler(int v_count)
+    : vertex_count(v_count),
+      mt_rand(),
       dist(0.0, 1.0),
-      tour()
-  {
-    vertex_count = count_v;
+      tour() {
     std::random_device rd;
     mt_rand.seed(rd());
   }
+  ///
   int choose_path(ant_colony::Choices srv) {
     bool visited_b; // TODO: Refactor to remove visited global
     float sum;
@@ -124,34 +127,48 @@ public:
       if (srv.response.desirability[i] < 0.001) {continue;}
       if (choice_d - sum < 0.001) {return i;}
     }
-    
-    std::runtime_error("Cannot find best path. The graph might be incomplete.");
+    throw std::runtime_error("Cannot find best path. The graph might be incomplete.");
+  }
+  /// 
+  ant_colony::Location travel_path(ant_colony::Edge srv) {
+    tour.push_back(srv.request.to_vertex);
+    tour_length += srv.response.travel_time;
+  }
+  ///
+  bool finished_tour() {
   }
 };
 
 
 int main(int argc, char **argv) {
-  // Start talking with ROS.
+  // Setup ROS Node
   ros::init(argc, argv, "Princess"); 
   ros::NodeHandle nh;
-  ros::Rate ant_speed(1);
 
-  // ROS Communication
+  // Set up communication with other nodes.
   ant_colony::PheromonePath pheromone_msg;
   ant_colony::Location location_msg;
   ant_colony::Directions directions_srv;
+  ant_colony::Choices choices_srv; // TODO update srv name
+  ant_colony::Edge edge_srv;
   ros::ServiceClient lost_ant = nh.serviceClient<ant_colony::Directions>("directions");
+  ros::ServiceClient lost_ant2 = nh.serviceClient<ant_colony::Choices>("choices");
+  ros::ServiceClient det_ant = nh.serviceClient<ant_colony::Edge>("edges");
   ros::Publisher smelly_ant = nh.advertise<ant_colony::PheromonePath>("path_pheromones", 1000);
   ros::Publisher loud_ant = nh.advertise<ant_colony::Location>("location", 1000);
+  ros::Rate ant_speed(1);
   nh.getParam("VertexCount", VertexCount);
-  nh.getParam("RewardPower", RewardPower);
+  nh.getParam("RewardPower", RewardPower); // TODO Delete this
 
+  Traveler ant(VertexCount);
+  
   ROS_INFO("Waiting for directions service.");
   ros::service::waitForService("directions", 1000000);
+  ros::service::waitForService("choices", 1000000);
+  ros::service::waitForService("edges", 1000000);
   ROS_INFO("Directions service connected!");
   
   while (ros::ok()) {
-    // ant.choose_path();
     // ant.travel_path();
     // ant.update_path();
     // if ant.is_at_goal() {
@@ -159,19 +176,27 @@ int main(int argc, char **argv) {
     // ant.update_map();
     // }
     // The ant wants to know where to go next.
+    choices_srv.request.from_here = ant.location;
+    if (not lost_ant2.call(choices_srv)) {
+      ROS_ERROR("Could not talk to Directions service.");
+    }
     directions_srv.request.skip_here = tour;
     directions_srv.request.from_here = current_vertex;
-    ROS_INFO("Waiting for directions...");
     if (not lost_ant.call(directions_srv)) {
       ROS_ERROR("Could not talk to Directions service.");
       return 1;
     }
-    ROS_INFO("Received directions");
     next_vertex = directions_srv.response.go_here;
     travel_time = directions_srv.response.travel_time;
 
-    // ant.travel();
+    edge_srv.request.from_vertex = ant.location;
+    edge_srv.request.to_vertex = ant.choose_path(choices_srv);
+    if (not det_ant.call(edge_srv)) {
+      ROS_ERROR("Could not talk to Edge info service.");
+    }
+
     // The ant is traveling.
+    location_msg = ant.travel_path(edge_srv);
     location_msg.name = ros::this_node::getName();
     location_msg.from_vertex = current_vertex;
     location_msg.to_vertex = next_vertex;
@@ -186,7 +211,9 @@ int main(int argc, char **argv) {
     visited.insert(next_vertex);
     tour_length += travel_time;
     current_vertex = next_vertex;
-    
+
+    if (ant.finished_tour()) {
+    }
     if (visited.size() == VertexCount && current_vertex==0) {
       // The ant marks it trail.
       pheromone_msg.tour = tour;

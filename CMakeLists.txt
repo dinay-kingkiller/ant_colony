@@ -61,6 +61,7 @@ add_service_files(
   FILES
   Choices.srv
   Directions.srv
+  Edge.srv
 )
 
 ## Generate actions in the 'action' folder
